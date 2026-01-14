@@ -1,0 +1,118 @@
+Hãy tạo cho tôi một project Java Maven tên là TravelPlanner_GroupXX với cấu trúc thư mục và file như sau:
+
+Yêu cầu chung:
+
+Tuân theo chuẩn Maven (src/main/java, src/main/resources, src/test/java)
+
+Áp dụng tư duy OOP và Cấu trúc dữ liệu & Giải thuật
+
+Không sử dụng các cấu trúc dữ liệu có sẵn của Java cho phần core logic
+
+Backend Java
+
+Trong src/main/java, tạo package:
+com.travelplanner
+
+1. app
+
+ConsoleApp.java: class chứa main() để chạy chương trình console, dùng để demo các cấu trúc dữ liệu trong giai đoạn đầu.
+
+WebServer.java: class dùng để khởi động web server khi mở rộng sang web.
+
+2. entities
+
+TourLocation.java: đại diện cho một điểm du lịch (id, name, description, cost,…).
+
+Customer.java: đại diện cho khách hàng (id, name, email,…).
+
+3. structures (quan trọng nhất)
+
+Node.java: lớp Node cơ bản dùng chung.
+
+MyLinkedList.java: tự cài đặt Linked List để quản lý danh sách Tour.
+
+MyBST.java: tự cài đặt Binary Search Tree để quản lý Customer.
+
+MyGraph.java: tự cài đặt Graph và thuật toán Dijkstra để tìm đường đi ngắn nhất.
+
+4. utils
+
+FileLoader.java: đọc dữ liệu từ file text.
+
+InputValidator.java: kiểm tra dữ liệu đầu vào.
+
+Resources
+
+Trong src/main/resources:
+
+data/map_data.txt: dữ liệu bản đồ.
+
+data/customers.txt: dữ liệu khách hàng.
+
+public/: chứa frontend
+
+index.html
+
+style.css
+
+script.js
+
+assets/
+
+Unit Test
+
+Trong src/test/java/com/travelplanner/structures:
+
+MyLinkedListTest.java
+
+MyBSTTest.java
+
+Mỗi file Java chỉ cần tạo skeleton code (class + package đúng), chưa cần cài đặt chi tiết logic.
+
+
+Output: 
+TravelPlanner_GroupXX/
+├── src/
+│   ├── main/
+│   │   ├── java/                   <-- Nơi chứa code Java (Backend Logic)
+│   │   │   └── com/
+│   │   │       └── travelplanner/
+│   │   │           ├── app/        <-- Chứa hàm Main chạy chương trình
+│   │   │           │   ├── ConsoleApp.java    (Chạy demo Console tuần 1-9)
+│   │   │           │   └── WebServer.java     (Chạy Web Server tuần 10)
+│   │   │           │
+│   │   │           ├── entities/   <-- Các đối tượng dữ liệu (Models)
+│   │   │           │   ├── TourLocation.java  (Điểm tham quan)
+│   │   │           │   └── Customer.java      (Khách hàng)
+│   │   │           │
+│   │   │           ├── structures/ <-- QUAN TRỌNG NHẤT: Code CTDL tự viết 
+│   │   │           │   ├── MyLinkedList.java  (Quản lý Tour [cite: 35])
+│   │   │           │   ├── MyBST.java         (Quản lý Customer [cite: 37])
+│   │   │           │   ├── MyGraph.java       (Bản đồ & Dijkstra [cite: 38])
+│   │   │           │   └── Node.java          (Node cơ bản dùng chung)
+│   │   │           │
+│   │   │           └── utils/      <-- Tiện ích hỗ trợ
+│   │   │               ├── FileLoader.java    (Đọc file text bản đồ [cite: 84])
+│   │   │               └── InputValidator.java
+│   │   │
+│   │   └── resources/              <-- Nơi chứa file Web & Data
+│   │       ├── data/
+│   │       │   ├── map_data.txt       (Dữ liệu bản đồ đầu vào)
+│   │       │   └── customers.txt
+│   │       │
+│   │       └── public/             <-- FRONTEND (HTML/CSS/JS) để ở đây
+│   │           ├── index.html
+│   │           ├── style.css
+│   │           ├── script.js
+│   │           └── assets/ (ảnh, icon)
+│   │
+│   └── test/                       <-- BẮT BUỘC: Nơi viết Unit Test 
+│       └── java/
+│           └── com/
+│               └── travelplanner/
+│                   └── structures/
+│                       ├── MyLinkedListTest.java
+│                       └── MyBSTTest.java
+
+
+

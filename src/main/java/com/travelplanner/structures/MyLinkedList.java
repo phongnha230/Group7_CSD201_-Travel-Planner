@@ -13,6 +13,7 @@ public class MyLinkedList {
 
     //1.Thêm địa điểm vào cuối hành trình (Add Last)
     public void addLocation(TourLocation location) {
+        Node<TourLocation> newNode = new Node<>(location);
         if (head == null) {
             head = newNode;
         } else {
@@ -30,7 +31,7 @@ public class MyLinkedList {
         if (head == null) return false;
 
         //Nếu xóa đầu tiên (Head)
-        if (head.data.getld().equals(locationld)) {
+        if (head.data.getId().equals(locationld)) {
             head = head.next;
             size--;
             return true;
@@ -38,7 +39,7 @@ public class MyLinkedList {
 
         Node<TourLocation> current = head;
         while (current.next != null) {
-            if (current.next.data.getld().equals(locationld)) {
+            if (current.next.data.getId().equals(locationld)) {
                 current.next = current.next.next;//Cắt dây nối
                 size--;
                 return true;

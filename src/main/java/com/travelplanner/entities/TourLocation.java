@@ -55,10 +55,15 @@ public class TourLocation {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (this == null || getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass())
             return false;
         TourLocation that = (TourLocation) obj;
         return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
 }

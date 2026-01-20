@@ -303,3 +303,13 @@ public class MyLinkedListTest {
         assertFalse(result, "Xóa list rỗng phải trả về false, không được crash!");
     }
 }
+
+fix code dead:
+if (this == null || getClass() != obj.getClass() thành 
+if (obj == null || getClass() != obj.getClass() thì nó ko hiện lỗi màu vàng cảnh báo dead code
+
+ @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+    thêm đoạn code này để nó ko bị hashCode khi chữ hàm equals cảnh báo vàng trên vscode

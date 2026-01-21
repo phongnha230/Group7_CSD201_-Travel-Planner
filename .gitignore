@@ -1,1 +1,39 @@
+# Maven
 target/
+*.jar
+*.war
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Node (if used for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Misc
+New folder/
+.env
+.env.local
+*.tmp

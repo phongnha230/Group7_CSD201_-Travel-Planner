@@ -15,6 +15,8 @@ public class MyLinkedList {
 
     // 1. Thêm vào cuối (Đã tối ưu O(1) nhờ biến tail)
     public void addLocation(TourLocation location) {
+        if (location == null) return; // Prevent adding nulls
+
         Node<TourLocation> newNode = new Node<>(location);
         
         if (head == null) {

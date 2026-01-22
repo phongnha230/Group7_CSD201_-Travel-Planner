@@ -91,4 +91,13 @@ public class MyLinkedListTest {
         assertFalse(isDeleted);
         assertEquals(1, list.size());
     }
+
+    @Test
+    public void testAddNull() {
+        // Test thêm null (Không được thêm vào)
+        MyLinkedList list = new MyLinkedList();
+        list.addLocation(null);
+
+        assertEquals(0, list.size());
+    }
 }

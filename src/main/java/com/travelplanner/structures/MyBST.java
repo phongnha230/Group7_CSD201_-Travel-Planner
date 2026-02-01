@@ -1,8 +1,6 @@
 package com.travelplanner.structures;
 
 import com.travelplanner.entities.Customer;
-import java.util.LinkedList;
-import java.util.Queue;
 public class MyBST {
     private TreeNode root;//Goc cay
 
@@ -52,25 +50,31 @@ public class MyBST {
         root = deleteRec(root,key);
     }
 
-    private TreeNode deleteRec(TreeNode root, Customer key ){
-        if (root ==null) return root;
+  private TreeNode deleteRec(TreeNode root, Customer key) {
+        // 1. Nếu cây rỗng hoặc đi quá lá -> Dừng
+        if (root == null) return root;
 
-        if(key.compareTo(root.data) < 0){
-            root.left = deleteRec(root.left,key);
-        }   else if (key.compareTo(root.data) > 0){
-            root.right = deleteRec(root.right,key);
-        
+        // 2. Đi tìm node cần xóa
+        if (key.compareTo(root.data) < 0) {
+            root.left = deleteRec(root.left, key); // Đi trái
+        } else if (key.compareTo(root.data) > 0) {
+            root.right = deleteRec(root.right, key); // Đi phải
+        } 
+        // 3. Đã tìm thấy node cần xóa (key == root.data)
+        else {
+            // TH1 & TH2: Node có 0 hoặc 1 con
+            if (root.left == null) return root.right;
+            if (root.right == null) return root.left;
 
-        if(root.left == null ) return root.right;
-        if (root.right == null) return root.left;
+            // TH3: Node có 2 con (Phức tạp nhất)
+            // Lấy giá trị nhỏ nhất bên phải đập vào chỗ cần xóa
+            root.data = minValue(root.right);
 
-        root.data = minValue(root.right);
-
-        root.right = deleteRec(root.right,root.data);
+            // Xóa node thừa bên phải đi
+            root.right = deleteRec(root.right, root.data);
         }
         return root;
     }
-
     private Customer minValue(TreeNode root){
         Customer minv = root.data;
         while (root.left != null) {

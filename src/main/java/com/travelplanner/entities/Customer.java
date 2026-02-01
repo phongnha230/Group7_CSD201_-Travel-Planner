@@ -1,10 +1,10 @@
 package com.travelplanner.entities;
 
 public class Customer implements Comparable<Customer> {
-    private String id;      // Key tìm kiếm
-    private String name;
-    private String phone;
-    private String email;   // <--- Mới thêm
+    private final String id;      // Key tìm kiếm
+    private final String name;
+    private final String phone;
+    private final String email;   // <--- Mới thêm
 
     // Nhớ cập nhật Constructor nhận thêm email
     public Customer(String id, String name, String phone, String email) {
@@ -14,9 +14,12 @@ public class Customer implements Comparable<Customer> {
         this.email = email;
     }
 
-    
+
 
     public String getId() { return id; }
+    public String getName() { return name; }
+    public String getPhone() { return phone; } 
+
     public String getEmail() { return email; } // Getter mới
 
     @Override

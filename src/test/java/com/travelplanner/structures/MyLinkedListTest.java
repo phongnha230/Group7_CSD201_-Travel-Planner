@@ -16,10 +16,10 @@ public class MyLinkedListTest {
 
     @Test
     public void testAddAndGet() {
-        MyLinkedList list = new MyLinkedList();
-        list.addLocation(createLoc("A"));
-        list.addLocation(createLoc("B"));
-        list.addLocation(createLoc("C"));
+        MyLinkedList<TourLocation> list = new MyLinkedList<>();
+        list.add(createLoc("A"));
+        list.add(createLoc("B"));
+        list.add(createLoc("C"));
 
         // Kiểm tra size và thứ tự
         assertEquals(3, list.size());
@@ -31,11 +31,11 @@ public class MyLinkedListTest {
     @Test
     public void testRemoveHead() {
         // Test xóa đầu: A -> B -> C xóa A còn B -> C
-        MyLinkedList list = new MyLinkedList();
-        list.addLocation(createLoc("A"));
-        list.addLocation(createLoc("B"));
+        MyLinkedList<TourLocation> list = new MyLinkedList<>();
+        list.add(createLoc("A"));
+        list.add(createLoc("B"));
 
-        boolean isDeleted = list.removeLocation("A");
+        boolean isDeleted = list.removeById("A");
         
         assertTrue(isDeleted);
         assertEquals(1, list.size());
@@ -45,13 +45,13 @@ public class MyLinkedListTest {
     @Test
     public void testRemoveTail() {
         // CỰC KỲ QUAN TRỌNG: Test xem biến TAIL có cập nhật đúng ko
-        MyLinkedList list = new MyLinkedList();
-        list.addLocation(createLoc("A"));
-        list.addLocation(createLoc("B"));
-        list.addLocation(createLoc("C"));
+        MyLinkedList<TourLocation> list = new MyLinkedList<>();
+        list.add(createLoc("A"));
+        list.add(createLoc("B"));
+        list.add(createLoc("C"));
 
         // Xóa thằng cuối (C)
-        boolean isDeleted = list.removeLocation("C");
+        boolean isDeleted = list.removeById("C");
         
         assertTrue(isDeleted);
         assertEquals(2, list.size());
@@ -59,7 +59,7 @@ public class MyLinkedListTest {
 
         // Thử thách: Thêm mới ngay sau khi xóa đuôi
         // Nếu biến tail bị lỗi, thằng D này sẽ không nối được vào sau B
-        list.addLocation(createLoc("D"));
+        list.add(createLoc("D"));
         
         assertEquals(3, list.size());
         assertEquals("D", list.get(2).getId()); // D phải nằm đúng ở cuối
@@ -68,15 +68,15 @@ public class MyLinkedListTest {
     @Test
     public void testRemoveOnlyElement() {
         // Test xóa phần tử duy nhất (List trở về rỗng)
-        MyLinkedList list = new MyLinkedList();
-        list.addLocation(createLoc("A"));
+        MyLinkedList<TourLocation> list = new MyLinkedList<>();
+        list.add(createLoc("A"));
 
-        list.removeLocation("A");
+        list.removeById("A");
         
         assertEquals(0, list.size());
         
         // Thêm lại để chắc chắn list không bị hỏng (Head/Tail phải reset về null rồi mới thêm lại)
-        list.addLocation(createLoc("New"));
+        list.add(createLoc("New"));
         assertEquals(1, list.size());
         assertEquals("New", list.get(0).getId());
     }
@@ -84,10 +84,10 @@ public class MyLinkedListTest {
     @Test
     public void testRemoveNonExistent() {
         // Test xóa cái không có
-        MyLinkedList list = new MyLinkedList();
-        list.addLocation(createLoc("A"));
+        MyLinkedList<TourLocation> list = new MyLinkedList<>();
+        list.add(createLoc("A"));
         
-        boolean isDeleted = list.removeLocation("Z"); // Không có Z
+        boolean isDeleted = list.removeById("Z"); // Không có Z
         assertFalse(isDeleted);
         assertEquals(1, list.size());
     }

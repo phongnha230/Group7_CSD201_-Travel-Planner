@@ -1,9 +1,8 @@
 package com.travelplanner.app;
 
-import java.util.ArrayList;
-
 import com.travelplanner.entities.Customer;
-import com.travelplanner.structures.MyBST; // Dòng này sẽ báo đỏ nếu chưa có file Seeder
+import com.travelplanner.structures.MyBST;
+import com.travelplanner.structures.MyLinkedList;
 import com.travelplanner.utils.DataSeeder;
 
 public class BenchmarkApp {
@@ -13,12 +12,16 @@ public class BenchmarkApp {
         
         // 1. Khởi tạo cấu trúc
         MyBST myTree = new MyBST();
-        ArrayList<Customer> myList = new ArrayList<>(); // Đại diện cho Linked List
+        MyLinkedList<Customer> myList = new MyLinkedList<>();
 
-        // 2. Nạp dữ liệu (Bước này cần DataSeeder)
-        // Nếu chưa có file DataSeeder, 2 dòng dưới này sẽ báo lỗi đỏ
+        // 2. Nạp dữ liệu
         DataSeeder.seedBST(myTree, N);
-        DataSeeder.seedList(myList, N);
+        // We need to update DataSeeder or just use a loop here since seedList expects java.util.List
+        for (int i = 0; i < N; i++) {
+            String id = "CUS" + i;
+            String email = "customer" + i + "@email.com";
+            myList.add(new Customer(id, "Khach " + i, "090" + i, email));
+        }
 
         // ID của người cuối cùng (Trường hợp xấu nhất để test tốc độ)
         String searchId = "CUS" + (N - 1); 
@@ -26,18 +29,12 @@ public class BenchmarkApp {
         System.out.println("\n=== BẮT ĐẦU ĐUA TỐC ĐỘ (BENCHMARK) ===");
         System.out.println("Đang tìm khách hàng: " + searchId);
 
-        // --- ĐUA VÒNG 1: LINKED LIST (ArrayList) ---
+        // --- ĐUA VÒNG 1: MY LINKED LIST ---
         long startTime = System.nanoTime();
-        boolean foundInList = false;
-        for (Customer c : myList) {
-            if (c.getId().equals(searchId)) {
-                foundInList = true;
-                break;
-            }
-        }
+        Customer foundInList = myList.searchById(searchId);
         long listTime = System.nanoTime() - startTime;
-        System.out.println("Linked List (Duyệt tuần tự) mất: " + listTime + " ns");
-        System.out.println("Tìm thấy trong List: " + foundInList);
+        System.out.println("MyLinkedList (Duyệt tuần tự) mất: " + listTime + " ns");
+        System.out.println("Tìm thấy trong List: " + (foundInList != null));
 
         // --- ĐUA VÒNG 2: BST (Cây nhị phân) ---
         startTime = System.nanoTime();
@@ -47,9 +44,9 @@ public class BenchmarkApp {
         System.out.println("Tìm thấy trong BST: " + (foundInTree != null));
 
         // --- TỔNG KẾT ---
-        if (treeTime > 0) { // Tránh chia cho 0
+        if (treeTime > 0) {
             long speedUp = listTime / treeTime;
-            System.out.println("=> KẾT LUẬN: BST nhanh gấp " + speedUp + " lần so với Linked List!");
+            System.out.println("=> KẾT LUẬN: BST nhanh gấp " + speedUp + " lần so với MyLinkedList!");
         } else {
             System.out.println("=> BST quá nhanh, không đo được bằng nano giây!");
         }

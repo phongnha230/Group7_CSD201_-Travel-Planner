@@ -1,10 +1,10 @@
 package com.travelplanner.structures;
 
-import com.travelplanner.entities.TourLocation;
+import com.travelplanner.entities.Identifiable;
 
-public class MyLinkedList {
-    private Node<TourLocation> head; // Đầu tàu
-    private Node<TourLocation> tail; // Đuôi tàu (Nâng cấp quan trọng!)
+public class MyLinkedList<T extends Identifiable> {
+    private Node<T> head; // Đầu tàu
+    private Node<T> tail; // Đuôi tàu (Nâng cấp quan trọng!)
     private int size;
 
     public MyLinkedList() {
@@ -14,8 +14,8 @@ public class MyLinkedList {
     }
 
     // 1. Thêm vào cuối (Đã tối ưu O(1) nhờ biến tail)
-    public void addLocation(TourLocation location) {
-        Node<TourLocation> newNode = new Node<>(location);
+    public void add(T data) {
+        Node<T> newNode = new Node<>(data);
         
         if (head == null) {
             // Trường hợp list rỗng: Đầu và Đuôi là một
@@ -30,11 +30,11 @@ public class MyLinkedList {
     }
 
     // 2. Xóa theo ID (Xử lý kỹ các trường hợp đặc biệt)
-    public boolean removeLocation(String locationId) {
+    public boolean removeById(String id) {
         if (head == null) return false;
 
         // TH1: Xóa ngay thằng đầu tiên (Head)
-        if (head.data.getId().equals(locationId)) {
+        if (head.data.getId().equals(id)) {
             head = head.next;
             size--;
             
@@ -46,9 +46,9 @@ public class MyLinkedList {
         }
 
         // TH2: Xóa ở giữa hoặc cuối
-        Node<TourLocation> current = head;
+        Node<T> current = head;
         while (current.next != null) {
-            if (current.next.data.getId().equals(locationId)) {
+            if (current.next.data.getId().equals(id)) {
                 // Nếu thằng sắp xóa là thằng đuôi (Tail) -> Phải cập nhật lại tail
                 if (current.next == tail) {
                     tail = current; // Thằng đứng trước nó lên làm đuôi
@@ -65,10 +65,10 @@ public class MyLinkedList {
     }
 
     // 3. Lấy phần tử theo index (Dùng cho Unit Test)
-    public TourLocation get(int index) {
+    public T get(int index) {
         if (index < 0 || index >= size) return null;
         
-        Node<TourLocation> current = head;
+        Node<T> current = head;
         for (int i = 0; i < index; i++) {
             current = current.next;
         }
@@ -76,23 +76,24 @@ public class MyLinkedList {
     }
 
     // 4. In danh sách (Hỗ trợ debug)
-    public void printTour() {
+    public void printList() {
         if (head == null) {
-            System.out.println("Tour trống!");
+            System.out.println("Danh sách trống!");
             return;
         }
-        Node<TourLocation> temp = head;
+        Node<T> temp = head;
         System.out.print("START -> ");
         while (temp != null) {
-            System.out.print(temp.data.getName() + " -> ");
+            System.out.print(temp.data.toString() + " -> ");
             temp = temp.next;
         }
         System.out.println("END");
     }
-// 5. Chuyển thành mảng (Dùng để gửi JSON ra Web sau này)
+
+    // 5. Chuyển thành mảng (Dùng để gửi JSON ra Web sau này)
     public Object[] toArray() {
         Object[] arr = new Object[size];
-        Node<TourLocation> current = head;
+        Node<T> current = head;
         int i = 0;
         while (current != null) {
             arr[i++] = current.data;
@@ -101,6 +102,18 @@ public class MyLinkedList {
         return arr;
     }
 
+    // 6. Tìm kiếm theo ID (O(n))
+    public T searchById(String id) {
+        Node<T> current = head;
+        while (current != null) {
+            if (current.data.getId().equals(id)) {
+                return current.data;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
     // Helper: Lấy kích thước
     public int size() { return size; }
-}  
+}

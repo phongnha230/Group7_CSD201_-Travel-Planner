@@ -1,6 +1,6 @@
 package com.travelplanner.entities;
 
-public class Customer implements Comparable<Customer> {
+public class Customer implements Comparable<Customer>, Identifiable {
     private final String id;      // Key tìm kiếm
     private final String name;
     private final String phone;

@@ -1,6 +1,9 @@
 package com.travelplanner.structures;
 
 import com.travelplanner.entities.Customer;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyBST {
     private TreeNode root;//Goc cay
 
@@ -112,5 +115,38 @@ public class MyBST {
     private int countRec(TreeNode root) {
         if (root == null )return 0;
         return 1 + countRec(root.left) + countRec(root.right);
+    }
+
+    /** Returns all customers in sorted order (in-order traversal) */
+    public List<Customer> getAllInOrder() {
+        List<Customer> list = new ArrayList<>();
+        inOrderToList(root, list);
+        return list;
+    }
+
+    private void inOrderToList(TreeNode node, List<Customer> list) {
+        if (node == null) return;
+        inOrderToList(node.left, list);
+        list.add(node.data);
+        inOrderToList(node.right, list);
+    }
+
+    /** Returns tree structure for visualization: [{id, name, left, right}, ...] */
+    public List<java.util.Map<String, String>> getTreeStructure() {
+        List<java.util.Map<String, String>> result = new ArrayList<>();
+        buildTreeStructure(root, result);
+        return result;
+    }
+
+    private void buildTreeStructure(TreeNode node, List<java.util.Map<String, String>> result) {
+        if (node == null) return;
+        java.util.Map<String, String> m = new java.util.HashMap<>();
+        m.put("id", node.data.getId());
+        m.put("name", node.data.getName());
+        m.put("left", node.left != null ? node.left.data.getId() : null);
+        m.put("right", node.right != null ? node.right.data.getId() : null);
+        result.add(m);
+        buildTreeStructure(node.left, result);
+        buildTreeStructure(node.right, result);
     }
 }

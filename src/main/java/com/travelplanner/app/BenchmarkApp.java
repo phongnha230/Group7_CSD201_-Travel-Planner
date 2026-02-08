@@ -9,7 +9,7 @@ import com.travelplanner.utils.DataSeeder;
 public class BenchmarkApp {
     public static void main(String[] args) {
         System.out.println("=== CHUẨN BỊ DỮ LIỆU ĐUA XE ===");
-        int N = 10000; // Số lượng khách hàng (10k)
+        int N = 10_000_000; // Số lượng khách hàng (10k)
         
         // 1. Khởi tạo cấu trúc
         MyBST myTree = new MyBST();
@@ -21,8 +21,8 @@ public class BenchmarkApp {
         DataSeeder.seedList(myList, N);
 
         // ID của người cuối cùng (Trường hợp xấu nhất để test tốc độ)
-        String searchId = "CUS" + (N - 1); 
-
+        String searchId = "CUS99999"; 
+        
         System.out.println("\n=== BẮT ĐẦU ĐUA TỐC ĐỘ (BENCHMARK) ===");
         System.out.println("Đang tìm khách hàng: " + searchId);
 

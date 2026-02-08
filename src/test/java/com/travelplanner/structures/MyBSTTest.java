@@ -93,11 +93,14 @@ public class MyBSTTest {
         MyBST tree = new MyBST();
         tree.insert(createCus("C10"));
         tree.insert(createCus("C20"));
-        
+        tree.insert(createCus("C15"));
+        tree.insert(createCus("C09"));
         tree.delete("C10"); // Xóa gốc
         
         assertNull(tree.search("C10"));
         assertNotNull(tree.search("C20"));
-        assertEquals(1, tree.count());
+        assertNotNull(tree.search("C15"));
+        assertNotNull(tree.search("C09"));
+        assertEquals(3, tree.count());
     }
 }

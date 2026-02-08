@@ -1,64 +1,120 @@
-# Travel Planner (Group 7)
+# Travel Planner Pro (Group 7)
 
-A Java-based Travel Planner application designed to demonstrate the implementation of fundamental data structures. This project currently features a tour itinerary management system using a custom Linked List and lays the groundwork for future implementations using Binary Search Trees (BST) and Graphs.
+Ứng dụng lập kế hoạch du lịch dựa trên Java, minh họa các cấu trúc dữ liệu cơ bản: **Linked List**, **Binary Search Tree (BST)**, và **Graph**.
 
 **Pair Programming:** Nhã and Linh
 
-## Features
+## Tính năng (DSA)
 
-- **Tour Management:**
-  - Add new tour locations to the itinerary.
-  - Remove locations from the itinerary.
-  - View the current tour plan (from Start to End).
-- **Custom Data Structures:**
-  - `MyLinkedList`: A custom implementation of a singly linked list with a tail pointer for O(1) insertion at the end.
-- **Data Models:**
-  - `TourLocation`: Represents a destination with ID, name, description, and price.
-  - `Customer`: Represents a customer (structure defined, logic pending).
+| Module | Cấu trúc dữ liệu | Chức năng |
+|--------|------------------|-----------|
+| **Itinerary** | Linked List | Thêm/xóa địa điểm vào tour, duyệt từ Head → Tail |
+| **Customers** | BST | Thêm/xóa/tìm kiếm khách hàng theo ID |
+| **Map Optimizer** | Graph | Tìm đường ngắn nhất (Dijkstra) theo khoảng cách hoặc thời gian |
 
-## Project Structure
+## Yêu cầu hệ thống
 
-The source code is organized into the following packages under `src/main/java/com/travelplanner`:
+- **JDK 21** trở lên
+- **Maven** (quản lý dependency và build)
 
-- **`app`**: Contains the application entry points.
-  - `ConsoleApp.java`: The current main entry point for testing the Linked List functionality.
-  - `WebServer.java`: Placeholder for future web server implementation.
-- **`entities`**: Contains the data models.
-  - `TourLocation.java`
-  - `Customer.java`
-- **`structures`**: Contains custom data structure implementations.
-  - `MyLinkedList.java`
-  - `MyBST.java` (Planned)
-  - `MyGraph.java` (Planned)
-  - `Node.java`: Generic node class for the data structures.
+## Cách chạy
 
-## Prerequisites
-
-- **Java Development Kit (JDK):** Version 21 or higher.
-- **Maven:** For dependency management and building the project.
-
-## How to Build and Run
-
-### Build the Project
-
-Use Maven to compile the project:
+### 1. Build project
 
 ```bash
 mvn compile
 ```
 
-### Run the Application
-
-Currently, the main logic is located in `ConsoleApp`. You can run it using the following Maven command:
+### 2. Chạy ứng dụng web
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.travelplanner.app.ConsoleApp"
+mvn exec:java -Dexec.mainClass="com.travelplanner.app.TravelWebServer"
 ```
 
-This will execute the `ConsoleApp` which demonstrates adding locations to a tour and removing them.
+### 3. Mở trình duyệt
 
-## Future Work
+Truy cập: **http://localhost:8080**
 
-- **Graph Implementation (`MyGraph`):** To manage routes and distances between locations.
-- **Binary Search Tree (`MyBST`):** To allow efficient searching of locations or customers.
-- **Web Interface:** Integrating a web server to expose the functionality via an API or UI.
+## Hướng dẫn Demo
+
+### Itinerary (Linked List)
+1. Chọn địa điểm từ dropdown → chọn vị trí thêm (Head/Tail/Index) → **Add to Itinerary**
+2. Xem danh sách tour hiển thị dạng linked list (Head → … → Tail)
+3. Bấm **Remove** trên từng thẻ để xóa địa điểm
+4. (Tuỳ chọn) Upload ảnh cho địa điểm → bấm vào thẻ có ảnh để set làm nền
+
+### Customers (BST)
+1. **Add Customer** → nhập ID, tên, SĐT, email → thêm khách hàng
+2. Xem cây BST và bảng danh sách khách hàng
+3. **Tìm kiếm:** nhập ID (vd: `001` hoặc `CUS001`) → Enter
+4. **Xóa:** bấm icon 🗑️ bên cạnh khách hàng
+
+### Map Optimizer (Graph)
+1. Chọn **Starting City** và **Destination City**
+2. Chọn tiêu chí: **Distance** hoặc **Time**
+3. Bấm **Find Shortest Path** → xem đường đi tối ưu trên bản đồ
+
+## Cấu trúc project
+
+```
+src/main/java/com/travelplanner/
+├── app/
+│   ├── TravelWebServer.java    # Entry point - HTTP server
+│   ├── Handlers.java           # API handlers (Tour, Customer, Graph)
+│   └── UploadHandler.java      # Upload ảnh
+├── entities/
+│   ├── TourLocation.java
+│   └── Customer.java
+└── structures/
+    ├── MyLinkedList.java       # Singly Linked List (Tour)
+    ├── MyBST.java              # Binary Search Tree (Customers)
+    └── MyGraph.java            # Graph + Dijkstra (Map)
+```
+
+## Chi tiết kỹ thuật (DSA)
+
+| Cấu trúc | Độ phức tạp | Mô tả |
+|----------|-------------|-------|
+| **MyLinkedList** | Insert O(1) tail, Delete O(n) | Singly linked list với tail pointer, thêm cuối O(1) |
+| **MyBST** | Search O(log n), Insert/Delete O(log n) | Binary Search Tree, tìm kiếm khách hàng theo ID |
+| **MyGraph** | Dijkstra O(V²) | Đồ thị vô hướng, tìm đường ngắn nhất qua thuật toán Dijkstra |
+
+## Công nghệ sử dụng
+
+- **Backend:** Java 21, `com.sun.net.httpserver` (HTTP server built-in)
+- **Frontend:** HTML5, CSS3, JavaScript (vanilla)
+- **Build:** Maven 3.x
+
+## API Endpoints
+
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| GET | `/api/tour` | Lấy danh sách tour (Linked List) |
+| POST | `/api/tour?id=&position=&price=` | Thêm địa điểm vào tour |
+| DELETE | `/api/tour?id=` | Xóa địa điểm khỏi tour |
+| GET | `/api/customers` | Lấy danh sách khách hàng (BST) |
+| GET | `/api/customers?id=` | Tìm khách hàng theo ID |
+| POST | `/api/customers?id=&name=&phone=&email=` | Thêm khách hàng |
+| DELETE | `/api/customers?id=` | Xóa khách hàng |
+| GET | `/api/locations` | Lấy danh sách địa điểm và cạnh (Graph) |
+| POST | `/api/find-path` | Tìm đường ngắn nhất (Dijkstra) |
+| POST | `/api/upload` | Upload ảnh địa điểm |
+
+## Chạy test
+
+```bash
+mvn test
+```
+
+## Gặp lỗi khi chạy?
+
+- **Port 8080 đã được sử dụng:** Tắt ứng dụng đang chạy trên port 8080 hoặc đổi port trong `TravelWebServer.java`
+- **Class not found:** Đảm bảo đã chạy `mvn compile` và dùng đúng main class: `com.travelplanner.app.TravelWebServer`
+
+## Môn học
+
+Dự án thực hiện cho môn **CSD201 - Cấu trúc dữ liệu và giải thuật**.
+
+## GitHub
+
+[https://github.com/phongnha230/Group7_CSD201_-Travel-Planner](https://github.com/phongnha230/Group7_CSD201_-Travel-Planner)

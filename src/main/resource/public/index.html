@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Planner Pro - DSA Project</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">✈️</div>
+                <div class="logo-text">
+                    <span class="logo-title">Travel Planner Pro</span>
+                    <span class="logo-subtitle">DSA PROJECT</span>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="tour">
+                <span class="nav-icon">📋</span>
+                Itinerary (Linked List)
+            </button>
+            <button class="nav-tab" data-tab="customers">
+                <span class="nav-icon">👥</span>
+                Customers (BST)
+            </button>
+            <button class="nav-tab" data-tab="map">
+                <span class="nav-icon">🗺️</span>
+                Map Optimizer (Graph)
+            </button>
+            <a href="https://github.com/phongnha230/Group7_CSD201_-Travel-Planner" class="nav-link" target="_blank">
+                <span class="nav-icon">🔗</span>
+                GitHub
+            </a>
+        </nav>
+        
+        <div class="header-right">
+            <div class="user-profile">
+                <div class="user-info">
+                    <span class="user-name">Admin User</span>
+                    <span class="user-role">Project Lead</span>
+                </div>
+                <div class="user-avatar">👤</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Tab 1: Itinerary (Linked List) -->
+        <section id="tour-tab" class="tab-content active">
+            <div class="itinerary-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>Itinerary Controls</h2>
+                        <p class="sidebar-subtitle">Manage your linked list nodes.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">📍</span>
+                            Destination Name
+                        </label>
+                        <select id="tourLocationSelect" class="input-field">
+                            <option value="">e.g. Kyoto, Japan</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">⏱️</span>
+                            Duration (Days)
+                        </label>
+                        <input type="number" id="tourDuration" class="input-field" placeholder="e.g. 3" min="1" value="3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">💰</span>
+                            Giá cả (VNĐ)
+                        </label>
+                        <input type="number" id="tourPrice" class="input-field" placeholder="e.g. 500000" min="0" step="1000" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">🖼️</span>
+                            Ảnh địa điểm
+                        </label>
+                        <div class="image-upload-area">
+                            <input type="file" id="tourImageInput" class="input-file" accept="image/*">
+                            <div id="imagePreview" class="image-preview">
+                                <span class="preview-placeholder">Chọn ảnh để upload</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Insert Position</label>
+                        <div class="position-buttons">
+                            <button class="pos-btn active" data-position="head">Head</button>
+                            <button class="pos-btn" data-position="tail">Tail</button>
+                            <button class="pos-btn" data-position="index">Index</button>
+                        </div>
+                        <input type="number" id="indexInput" class="input-field index-input" placeholder="Index #" min="0" style="display: none;">
+                    </div>
+                    
+                    <button id="addToTourBtn" class="btn-primary btn-full">
+                        <span class="btn-icon">➕</span>
+                        Add to Itinerary
+                    </button>
+                    
+                    <button id="resetTourBtn" class="btn-secondary btn-full">
+                        <span class="btn-icon">🔄</span>
+                        Reset List
+                    </button>
+                    
+                    <div class="sidebar-stats">
+                        <div class="stat-row">
+                            <span class="stat-icon">🔗</span>
+                            <div class="stat-info">
+                                <span class="stat-label">Data Structure</span>
+                                <span class="stat-value">Singly Linked List</span>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">💾</span>
+                            <div class="stat-info">
+                                <span class="stat-label">Memory Used</span>
+                                <span class="stat-value"><span id="nodeCount">0</span> Nodes Allocated</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Main Content Area -->
+                <div class="main-area">
+                    <div class="content-header">
+                        <div class="content-title">
+                            <h1>Current Tour Itinerary</h1>
+                            <span class="badge badge-blue">LINKED LIST VIEW</span>
+                        </div>
+                        <div class="head-tail-indicators">
+                            <span class="indicator"><span class="dot dot-green"></span> Head</span>
+                            <span class="indicator"><span class="dot dot-orange"></span> Tail</span>
+                        </div>
+                    </div>
+                    
+                    <div id="tourList" class="tour-cards-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">📍</div>
+                            <p class="empty-title">No destinations in tour yet.</p>
+                            <p class="empty-hint">Add locations from the sidebar to build your itinerary!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="content-footer">
+                        <div class="footer-info">
+                            <div class="footer-stat">
+                                <span class="footer-icon">🔗</span>
+                                <div>
+                                    <span class="footer-label">Data Structure</span>
+                                    <span class="footer-value">Singly Linked List</span>
+                                </div>
+                            </div>
+                            <div class="footer-stat">
+                                <span class="footer-icon">💾</span>
+                                <div>
+                                    <span class="footer-label">Memory Used</span>
+                                    <span class="footer-value" id="memoryUsed">0 Nodes Allocated</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="exportBtn" class="btn-export">
+                            Export Itinerary JSON
+                            <span class="export-icon">⬇️</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Customers (BST) -->
+        <section id="customers-tab" class="tab-content">
+            <div class="customers-layout">
+                <!-- Left Section -->
+                <div class="customers-main">
+                    <div class="customers-header">
+                        <div>
+                            <h1>Customer Database</h1>
+                            <p class="header-subtitle">Manage customers via Binary Search Tree</p>
+                        </div>
+                        <div class="header-actions">
+                            <div class="search-box">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="searchCustomerId" placeholder="Tìm theo ID (vd: CUS001 hoặc 001)...">
+                            </div>
+                            <button id="addCustomerBtn" class="btn-primary">
+                                <span class="btn-icon">➕</span>
+                                Add Customer
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tree Visualization -->
+                    <div class="tree-section">
+                        <div class="tree-header">
+                            <div class="tree-title">
+                                <span class="tree-icon">🌳</span>
+                                Tree Visualization
+                            </div>
+                            <div class="tree-controls">
+                                <span class="depth-badge">Depth: <span id="treeDepth">0</span></span>
+                                <button class="btn-icon-only" id="expandTreeBtn">⛶</button>
+                            </div>
+                        </div>
+                        <div class="tree-container">
+                            <canvas id="bstCanvas" width="700" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer List -->
+                    <div class="table-section">
+                        <div class="table-header">
+                            <h3>Customer List</h3>
+                            <button class="btn-export-small">Export CSV</button>
+                        </div>
+                        <table class="customers-table">
+                            <thead>
+                                <tr>
+                                    <th>CUSTOMER ID</th>
+                                    <th>FULL NAME</th>
+                                    <th>LOCATION</th>
+                                    <th>BOOKINGS</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Right Sidebar -->
+                <aside class="stats-sidebar">
+                    <div class="db-stats">
+                        <h4>DATABASE STATS</h4>
+                        <div class="db-stat-row">
+                            <span class="db-icon">👥</span>
+                            <div>
+                                <span class="db-value" id="totalCustomers">0</span>
+                                <span class="db-label">Total Customers</span>
+                            </div>
+                        </div>
+                        <div class="db-stat-row">
+                            <span class="db-icon">📊</span>
+                            <div>
+                                <span class="db-value" id="treeHeight">0</span>
+                                <span class="db-label">Tree Height (Max)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-logs">
+                        <h4>RECENT LOGS</h4>
+                        <div id="logsContainer" class="logs-list">
+                            <!-- Dynamic logs -->
+                        </div>
+                    </div>
+                </aside>
+            </div>
+            
+            <!-- Add Customer Modal -->
+            <div id="addCustomerModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Customer</h3>
+                        <button class="modal-close" id="closeModalBtn">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Customer ID</label>
+                            <input type="text" id="custId" class="input-field" placeholder="e.g., CUS004">
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="custName" class="input-field" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="custPhone" class="input-field" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="custEmail" class="input-field" placeholder="Enter email">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" id="cancelModalBtn">Cancel</button>
+                        <button class="btn-primary" id="confirmAddBtn">Add Customer</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Map Optimizer (Graph) -->
+        <section id="map-tab" class="tab-content">
+            <div class="map-layout">
+                <!-- Sidebar -->
+                <aside class="map-sidebar">
+                    <div class="sidebar-section">
+                        <h3>
+                            <span class="section-icon">🛤️</span>
+                            Route Configuration
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label>STARTING CITY</label>
+                            <div class="select-wrapper">
+                                <span class="select-icon">○</span>
+                                <select id="startPoint" class="input-field">
+                                    <option value="">Select Starting City</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="swap-icon-container">
+                            <button class="btn-swap" id="swapBtn">⇅</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>DESTINATION CITY</label>
+                            <div class="select-wrapper">
+                                <span class="select-icon">📍</span>
+                                <select id="endPoint" class="input-field">
+                                    <option value="">Select Destination</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>OPTIMIZATION CRITERIA</label>
+                            <div class="criteria-buttons">
+                                <button class="criteria-btn active" data-criteria="distance">
+                                    <span class="criteria-icon">📍</span>
+                                    Shortest Distance
+                                </button>
+                                <button class="criteria-btn" data-criteria="cost">
+                                    <span class="criteria-icon">💰</span>
+                                    Lowest Cost
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button id="findBtn" class="btn-primary btn-full btn-find">
+                            <span class="btn-icon">🧭</span>
+                            Find Shortest Path
+                        </button>
+                    </div>
+                    
+                    <!-- Results Panel -->
+                    <div id="resultsPanel" class="results-panel hidden">
+                        <div class="result-header">
+                            <span class="result-check">✓</span>
+                            <span>Optimal Path Found</span>
+                            <span class="algo-badge">Dijkstra</span>
+                        </div>
+                        
+                        <div class="result-stats">
+                            <div class="result-stat">
+                                <span class="result-stat-label">TOTAL DISTANCE</span>
+                                <span class="result-stat-value" id="totalDistance">0 <small>km</small></span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-stat-label">EST. TIME</span>
+                                <span class="result-stat-value" id="estTime">0 <small>hrs</small></span>
+                            </div>
+                        </div>
+                        
+                        <div class="path-sequence">
+                            <h4>PATH SEQUENCE</h4>
+                            <div id="pathList" class="path-list">
+                                <!-- Dynamic path items -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Map Canvas Area -->
+                <div class="map-canvas-container">
+                    <div class="map-legend">
+                        <span class="legend-item"><span class="legend-dot"></span> Node</span>
+                        <span class="legend-item"><span class="legend-dot legend-visited"></span> Visited</span>
+                        <span class="legend-item"><span class="legend-line"></span> Optimal Path</span>
+                    </div>
+                    
+                    <canvas id="mapCanvas" width="900" height="600"></canvas>
+                    
+                    <div class="map-controls">
+                        <button class="map-ctrl-btn" id="zoomInBtn">+</button>
+                        <button class="map-ctrl-btn" id="zoomOutBtn">−</button>
+                        <button class="map-ctrl-btn" id="resetViewBtn">⟲</button>
+                    </div>
+                    
+                    <div class="map-footer">
+                        <span class="engine-label">Graph Render Engine v1.0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

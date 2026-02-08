@@ -15,18 +15,55 @@ public class MyLinkedList {
 
     // 1. Thêm vào cuối (Đã tối ưu O(1) nhờ biến tail)
     public void addLocation(TourLocation location) {
+        addAtTail(location);
+    }
+
+    // Thêm vào đầu (Head)
+    public void addAtHead(TourLocation location) {
         Node<TourLocation> newNode = new Node<>(location);
-        
         if (head == null) {
-            // Trường hợp list rỗng: Đầu và Đuôi là một
             head = newNode;
             tail = newNode;
         } else {
-            // Trường hợp có dữ liệu: Chỉ cần nối vào đuôi cũ
-            tail.next = newNode;
-            tail = newNode; // Cập nhật đuôi mới
+            newNode.next = head;
+            head = newNode;
         }
         size++;
+    }
+
+    // Thêm vào cuối (Tail)
+    public void addAtTail(TourLocation location) {
+        Node<TourLocation> newNode = new Node<>(location);
+        if (head == null) {
+            head = newNode;
+            tail = newNode;
+        } else {
+            tail.next = newNode;
+            tail = newNode;
+        }
+        size++;
+    }
+
+    // Thêm vào vị trí index (0 = đầu)
+    public boolean addAtIndex(int index, TourLocation location) {
+        if (index < 0 || index > size) return false;
+        if (index == 0) {
+            addAtHead(location);
+            return true;
+        }
+        if (index == size) {
+            addAtTail(location);
+            return true;
+        }
+        Node<TourLocation> newNode = new Node<>(location);
+        Node<TourLocation> current = head;
+        for (int i = 0; i < index - 1; i++) {
+            current = current.next;
+        }
+        newNode.next = current.next;
+        current.next = newNode;
+        size++;
+        return true;
     }
 
     // 2. Xóa theo ID (Xử lý kỹ các trường hợp đặc biệt)

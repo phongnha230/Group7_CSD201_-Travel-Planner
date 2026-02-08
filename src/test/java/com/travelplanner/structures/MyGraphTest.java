@@ -44,27 +44,23 @@ public class MyGraphTest {
     }
     @Test
     public void testDijkstra() {
-        System.out.println("Test Dijkstra:");
         MyGraph graph = new MyGraph();
-        
-        // Tạo bản đồ tam giác: A, B, C
-        // A -> B: 10km
-        // B -> C: 10km
-        // A -> C: 50km (Đường tắt nhưng xa hơn)
-        
-        graph.addVertex(createLoc("A")); // 0
-        graph.addVertex(createLoc("B")); // 1
-        graph.addVertex(createLoc("C")); // 2
-        
+
+        // A -> B: 10km, B -> C: 10km, A -> C: 50km
+        // Đường ngắn nhất A->C phải là A -> B -> C (20km)
+        graph.addVertex(createLoc("A"));
+        graph.addVertex(createLoc("B"));
+        graph.addVertex(createLoc("C"));
+
         graph.addEdge(0, 1, 10);
         graph.addEdge(1, 2, 10);
-        graph.addEdge(0, 2, 50); 
-        
-        // Chạy thuật toán tìm đường từ A đến C
-        // Kết quả đúng phải là đi vòng: A -> B -> C (Tổng 20km)
-        // Chứ không phải đi thẳng A -> C (50km)
-        graph.findShortestPath("A", "C");
-        
-        // (Phần này bạn nhìn console output để check kết quả nhé)
+        graph.addEdge(0, 2, 50);
+
+        java.util.List<TourLocation> path = graph.getPath("A", "C");
+        assertNotNull(path);
+        assertEquals(3, path.size());
+        assertEquals("A", path.get(0).getId());
+        assertEquals("B", path.get(1).getId());
+        assertEquals("C", path.get(2).getId());
     }
 }

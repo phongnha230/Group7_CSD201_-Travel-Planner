@@ -2991,3 +2991,716 @@ Hiện tại bạn cứ tưởng tượng bạn đang viết ra giấy nháp (RA
 Sau này (có thể là các giai đoạn sau hoặc môn Java Web/Database), bạn sẽ học cách kết nối với MySQL hoặc SQL Server. Lúc đó dữ liệu mới thực sự được "đóng đinh" vào ổ cứng, tắt máy đi bật lại vẫn còn nguyên.
 
 Yên tâm là code bạn đang chạy đúng chuẩn yêu cầu của bài rồi nhé! Cứ thế mà nộp thôi! 👍
+
+---
+
+# CẬP NHẬT PHIÊN LÀM VIỆC MỚI - 08/02/2026
+
+**Commit mới nhất:** `a8bae1223ca9b593c9325ebd85947d2efc9d2ee0`  
+**Message:** Update README.md and enhance data structures  
+**Repo:** https://github.com/phongnha230/Group7_CSD201_-Travel-Planner
+
+---
+
+## 1. Prompt: "tại sao tôi thêm customer vào nó ko hiện lên vậy và sao tôi ko xóa được các nút cây đó được thế"
+
+**Phân tích:** 
+- Bảng và cây BST dùng dữ liệu mẫu cố định, không lấy từ API
+- API GET /api/customers chỉ trả về count, không trả danh sách khách hàng
+- Cột ACTIONS chỉ có nút edit (✏️), không có nút xóa
+
+**Sửa đổi:**
+- **MyBST.java:** Thêm `getAllInOrder()` và `getTreeStructure()` trả về danh sách và cấu trúc cây
+- **Handlers.java:** API GET /api/customers trả về `customers` và `tree` (JSON)
+- **script.js:** `renderCustomerTable()` và `drawBST()` dùng dữ liệu API thay cho hardcoded
+- **script.js:** Thêm nút 🗑️ xóa và hàm `deleteCustomer(id)` gọi DELETE API
+- **style.css:** Thêm style cho nút xóa (hover đỏ)
+
+---
+
+## 2. Prompt: "ủa sao nó ko thêm vào danh sách hoặc cây thế, nó chỉ ghi log thôi"
+
+**Phân tích:** Khi thêm customer với ID trùng, BST không thêm node mới (compareTo == 0) nhưng backend vẫn trả `success: true`.
+
+**Sửa đổi:**
+- **Handlers.java:** Kiểm tra `customerTree.search(id) != null` trước khi insert. Nếu trùng → trả lỗi "Customer ID already exists"
+- **script.js:** Thêm cache-busting `?_t=Date.now()` cho loadCustomers
+- **script.js:** Cải thiện xử lý lỗi trong addCustomer (.catch, alert khi lỗi)
+
+---
+
+## 3. Prompt: "xóa bà nó phần này đi" (Performance Stats)
+
+**Sửa đổi:**
+- **index.html:** Xóa toàn bộ phần Performance Stats (Live Search Metrics, BST vs Linear, 300x Faster Efficiency, Big O cards)
+- Giữ lại DATABASE STATS và RECENT LOGS trong sidebar
+
+---
+
+## 4. Prompt: "cái Search này dùng được ko"
+
+**Phân tích:** Search chỉ tìm theo ID, cần nhập đúng format CUS001. Nhập 001 hoặc 1 không tìm thấy.
+
+**Sửa đổi:**
+- **index.html:** Placeholder đổi thành "Tìm theo ID (vd: CUS001 hoặc 001)..."
+- **script.js:** Hàm `searchCustomer()` chuẩn hóa ID: "001" hoặc "1" → "CUS001"
+- **script.js:** Thêm .catch cho searchCustomerById, đổi thông báo sang tiếng Việt
+
+---
+
+## 5. Prompt: "oke bạn làm đi" (áp dụng fix search)
+
+Đã thực hiện các sửa đổi ở mục 4.
+
+---
+
+## 6. Prompt: "xóa bà nó phần này đi" (AI Interaction Log)
+
+**Sửa đổi:**
+- **index.html:** Xóa nút "AI Interaction Log" trên thanh nav
+- **index.html:** Xóa toàn bộ section `#logs-tab` (Tab 4)
+
+---
+
+## 7. Prompt: "tôi muốn các dấu mũi tên này xuống giữa thay vì nó đang trên đầu thẻ, và tôi muốn thay background thay vì nền trắng, tôi bấm vào tua nào mà trong đó có ảnh nào thì nó sẽ xuất hiện trên background nền trắng đó"
+
+**Sửa đổi:**
+- **style.css:** `tour-cards-container` đổi `align-items: flex-start` → `center`; `.tour-arrow` thêm `align-self: center`
+- **style.css:** Thêm `.has-bg-image` cho container, overlay trắng 75% khi có ảnh nền
+- **style.css:** Thêm z-index cho cards, arrows, start-marker để hiển thị trên overlay
+- **script.js:** Thêm `data-image` và class `tour-card-clickable` cho thẻ có ảnh
+- **script.js:** Event delegation click trên tourList → gọi `setTourBackground(imageUrl)`
+- **script.js:** Hàm `setTourBackground()` set background-image cho container
+- **script.js:** Reset background khi tour rỗng hoặc Reset List
+
+---
+
+## 8. Prompt: "có cần thêm đăng nhập nữa cho nó chất ko"
+
+**Trả lời:** Nên thêm nếu là đồ án lớn/capstone. Không cần thiết nếu đề bài chỉ yêu cầu demo DSA, thời gian hạn chế, hoặc bài tập CSD201 (login không được chấm).
+
+---
+
+## 9. Prompt: "Đề bài chỉ yêu cầu demo DSA... tôi chỉ tập trung cái này thôi, nên thôi khỏi phần login chi cho mệt đầu"
+
+**Trả lời:** Quyết định hợp lý. Ưu tiên Linked List, BST, Graph.
+
+---
+
+## 10. Prompt: "https://github.com/phongnha230/Group7_CSD201_-Travel-Planner điền cái link này chỗ mà bấm trên thanh github"
+
+**Sửa đổi:**
+- **index.html:** Đổi `href="https://github.com"` → `href="https://github.com/phongnha230/Group7_CSD201_-Travel-Planner"`
+
+---
+
+## 11. Prompt: "README giải thích cách chạy và demo"
+
+**Sửa đổi:**
+- **README.md:** Viết lại toàn bộ với:
+  - Mô tả 3 module DSA (Itinerary, Customers, Map Optimizer)
+  - Yêu cầu JDK 21, Maven
+  - Cách build và chạy (mvn compile, mvn exec:java với TravelWebServer)
+  - Hướng dẫn demo chi tiết từng tab
+  - Cấu trúc project
+  - Chạy test
+  - Link GitHub
+
+---
+
+## 12. Prompt: "Viết thêm xíu nữa đi" (README)
+
+**Sửa đổi:**
+- **README.md:** Thêm:
+  - Bảng chi tiết kỹ thuật DSA (độ phức tạp MyLinkedList, MyBST, MyGraph)
+  - Công nghệ sử dụng (Java 21, HTML/CSS/JS, Maven)
+  - Bảng API Endpoints đầy đủ
+  - Mục "Gặp lỗi khi chạy?" (port 8080, class not found)
+  - Môn học CSD201
+
+---
+
+## TỔNG KẾT FILE ĐÃ THAY ĐỔI
+
+| File | Thay đổi |
+|------|----------|
+| `MyBST.java` | getAllInOrder(), getTreeStructure() |
+| `Handlers.java` | API trả customers+tree, kiểm tra duplicate ID, escapeJson |
+| `script.js` | loadCustomers dùng API, renderCustomerTable, drawBST, addCustomer, deleteCustomer, searchCustomer, setTourBackground, event delegation |
+| `index.html` | Xóa Performance Stats, AI Interaction Log, cập nhật GitHub link, placeholder search |
+| `style.css` | Arrows center, tour-cards-container has-bg-image, btn-delete hover |
+| `README.md` | Viết lại đầy đủ |
+
+---
+
+# PHỤ LỤC: MÃ NGUỒN ĐẦY ĐỦ (YÊU CẦU THẦY)
+
+## Handlers.java
+`src/main/java/com/travelplanner/app/Handlers.java`
+
+```java
+package com.travelplanner.app;
+
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+import com.travelplanner.entities.TourLocation;
+import com.travelplanner.entities.Customer;
+import com.travelplanner.structures.MyLinkedList;
+import com.travelplanner.structures.MyBST;
+import com.travelplanner.structures.MyGraph;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
+// Handler cho /api/tour (Linked List operations)
+class TourHandler implements HttpHandler {
+    private MyLinkedList tourList;
+    private MyGraph graph;
+
+    public TourHandler(MyLinkedList tourList, MyGraph graph) {
+        this.tourList = tourList;
+        this.graph = graph;
+    }
+
+    @Override
+    public void handle(HttpExchange t) throws IOException {
+        t.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        String method = t.getRequestMethod();
+        String response = "";
+        int statusCode = 200;
+        try {
+            if ("GET".equals(method)) {
+                Object[] locations = tourList.toArray();
+                StringBuilder json = new StringBuilder("[");
+                for (int i = 0; i < locations.length; i++) {
+                    TourLocation loc = (TourLocation) locations[i];
+                    String imageUrl = loc.getImageUrl();
+                    String imageJson = imageUrl != null ? ", \"imageUrl\":\"" + escapeJson(imageUrl) + "\"" : "";
+                    json.append(String.format("{\"id\":\"%s\", \"name\":\"%s\", \"description\":\"%s\", \"price\":%.2f%s}",
+                            escapeJson(loc.getId()), escapeJson(loc.getName()), escapeJson(loc.getDescription()),
+                            loc.getPrice(), imageJson));
+                    if (i < locations.length - 1) json.append(",");
+                }
+                json.append("]");
+                response = json.toString();
+            } else if ("POST".equals(method)) {
+                URI uri = t.getRequestURI();
+                Map<String, String> params = queryToMap(uri.getQuery());
+                String id = params.get("id");
+                String priceStr = params.get("price");
+                String imageUrl = params.get("imageUrl");
+                String position = params.get("position");
+                String indexStr = params.get("index");
+
+                if (id != null) {
+                    List<TourLocation> allLocs = graph.getAllLocations();
+                    TourLocation found = null;
+                    for (TourLocation loc : allLocs) {
+                        if (loc.getId().equals(id)) { found = loc; break; }
+                    }
+                    if (found != null) {
+                        double price = 0;
+                        if (priceStr != null && !priceStr.isEmpty()) {
+                            try { price = Double.parseDouble(priceStr); } catch (NumberFormatException ignored) {}
+                        }
+                        TourLocation tourCopy = new TourLocation(found.getId(), found.getName(), found.getDescription(),
+                                price, found.getX(), found.getY());
+                        if (imageUrl != null && !imageUrl.isEmpty()) tourCopy.setImageUrl(imageUrl);
+                        boolean added = false;
+                        if ("head".equalsIgnoreCase(position)) {
+                            tourList.addAtHead(tourCopy);
+                            added = true;
+                        } else if ("index".equalsIgnoreCase(position) && indexStr != null && !indexStr.isEmpty()) {
+                            try {
+                                int idx = Integer.parseInt(indexStr);
+                                added = tourList.addAtIndex(idx, tourCopy);
+                            } catch (NumberFormatException ignored) {}
+                        }
+                        if (!added) tourList.addAtTail(tourCopy);
+                        response = "{\"success\": true, \"message\": \"Added to tour\"}";
+                    } else {
+                        response = "{\"error\": \"Location not found\"}";
+                        statusCode = 404;
+                    }
+                } else {
+                    response = "{\"error\": \"Missing id parameter\"}";
+                    statusCode = 400;
+                }
+            } else if ("DELETE".equals(method)) {
+                URI uri = t.getRequestURI();
+                Map<String, String> params = queryToMap(uri.getQuery());
+                String id = params.get("id");
+                if (id != null) {
+                    boolean removed = tourList.removeLocation(id);
+                    if (removed) response = "{\"success\": true, \"message\": \"Removed from tour\"}";
+                    else { response = "{\"error\": \"Location not found in tour\"}"; statusCode = 404; }
+                } else { response = "{\"error\": \"Missing id parameter\"}"; statusCode = 400; }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response = "{\"error\": \"" + e.getMessage() + "\"}";
+            statusCode = 500;
+        }
+        t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
+        OutputStream os = t.getResponseBody();
+        os.write(response.getBytes("UTF-8"));
+        os.close();
+    }
+
+    private Map<String, String> queryToMap(String query) {
+        Map<String, String> result = new HashMap<>();
+        if (query == null) return result;
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=", 2);
+            if (pair.length >= 2) {
+                try { result.put(pair[0], java.net.URLDecoder.decode(pair[1], "UTF-8")); }
+                catch (Exception e) { result.put(pair[0], pair[1]); }
+            } else { result.put(pair[0], ""); }
+        }
+        return result;
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+    }
+}
+
+// Handler cho /api/customers (BST operations)
+class CustomerHandler implements HttpHandler {
+    private MyBST customerTree;
+
+    public CustomerHandler(MyBST customerTree) {
+        this.customerTree = customerTree;
+    }
+
+    @Override
+    public void handle(HttpExchange t) throws IOException {
+        t.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        String method = t.getRequestMethod();
+        String response = "";
+        int statusCode = 200;
+        try {
+            if ("GET".equals(method)) {
+                URI uri = t.getRequestURI();
+                Map<String, String> params = queryToMap(uri.getQuery());
+                String searchId = params.get("id");
+
+                if (searchId != null) {
+                    Customer found = customerTree.search(searchId);
+                    if (found != null) {
+                        response = String.format("{\"id\":\"%s\", \"name\":\"%s\", \"phone\":\"%s\", \"email\":\"%s\"}",
+                                found.getId(), found.getName(), found.getPhone(), found.getEmail());
+                    } else {
+                        response = "{\"error\": \"Customer not found\"}";
+                        statusCode = 404;
+                    }
+                } else {
+                    int count = customerTree.count();
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("{\"count\":").append(count).append(",\"customers\":[");
+                    var list = customerTree.getAllInOrder();
+                    for (int i = 0; i < list.size(); i++) {
+                        Customer c = list.get(i);
+                        if (i > 0) sb.append(",");
+                        sb.append(String.format("{\"id\":\"%s\",\"name\":\"%s\",\"phone\":\"%s\",\"email\":\"%s\"}",
+                                escapeJson(c.getId()), escapeJson(c.getName()), escapeJson(c.getPhone()), escapeJson(c.getEmail())));
+                    }
+                    sb.append("],\"tree\":[");
+                    var tree = customerTree.getTreeStructure();
+                    for (int i = 0; i < tree.size(); i++) {
+                        var m = tree.get(i);
+                        if (i > 0) sb.append(",");
+                        sb.append(String.format("{\"id\":\"%s\",\"name\":\"%s\",\"left\":%s,\"right\":%s}",
+                                escapeJson(m.get("id")), escapeJson(m.get("name")),
+                                m.get("left") == null ? "null" : "\"" + escapeJson(m.get("left")) + "\"",
+                                m.get("right") == null ? "null" : "\"" + escapeJson(m.get("right")) + "\""));
+                    }
+                    sb.append("]}");
+                    response = sb.toString();
+                }
+            } else if ("POST".equals(method)) {
+                URI uri = t.getRequestURI();
+                Map<String, String> params = queryToMap(uri.getQuery());
+                String id = params.get("id");
+                String name = params.get("name");
+                String phone = params.get("phone");
+                String email = params.get("email");
+
+                if (id != null && name != null && phone != null && email != null) {
+                    if (customerTree.search(id) != null) {
+                        response = "{\"success\": false, \"error\": \"Customer ID already exists. Please use a different ID.\"}";
+                        statusCode = 400;
+                    } else {
+                        Customer newCustomer = new Customer(id, name, phone, email);
+                        customerTree.insert(newCustomer);
+                        response = "{\"success\": true, \"message\": \"Customer added\"}";
+                    }
+                } else {
+                    response = "{\"error\": \"Missing required parameters (id, name, phone, email)\"}";
+                    statusCode = 400;
+                }
+            } else if ("DELETE".equals(method)) {
+                URI uri = t.getRequestURI();
+                Map<String, String> params = queryToMap(uri.getQuery());
+                String id = params.get("id");
+                if (id != null) {
+                    customerTree.delete(id);
+                    response = "{\"success\": true, \"message\": \"Customer deleted\"}";
+                } else {
+                    response = "{\"error\": \"Missing id parameter\"}";
+                    statusCode = 400;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response = "{\"error\": \"" + e.getMessage() + "\"}";
+            statusCode = 500;
+        }
+        t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
+        OutputStream os = t.getResponseBody();
+        os.write(response.getBytes("UTF-8"));
+        os.close();
+    }
+
+    private Map<String, String> queryToMap(String query) {
+        Map<String, String> result = new HashMap<>();
+        if (query == null) return result;
+        try {
+            for (String param : query.split("&")) {
+                String[] pair = param.split("=", 2);
+                if (pair.length > 1) {
+                    result.put(pair[0], URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
+                } else { result.put(pair[0], ""); }
+            }
+        } catch (Exception e) {}
+        return result;
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+    }
+}
+```
+
+---
+
+## TravelWebServer.java
+`src/main/java/com/travelplanner/app/TravelWebServer.java`
+
+```java
+package com.travelplanner.app;
+
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+import com.travelplanner.entities.TourLocation;
+import com.travelplanner.entities.Customer;
+import com.travelplanner.structures.MyGraph;
+import com.travelplanner.structures.MyLinkedList;
+import com.travelplanner.structures.MyBST;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TravelWebServer {
+    private static MyGraph graph;
+    private static MyLinkedList tourList;
+    private static MyBST customerTree;
+
+    public static void main(String[] args) throws IOException {
+        initData();
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+
+        server.createContext("/api/locations", new LocationsHandler());
+        server.createContext("/api/find-path", new FindPathHandler());
+        server.createContext("/api/tour", new TourHandler(tourList, graph));
+        server.createContext("/api/upload", new UploadHandler());
+        server.createContext("/api/customers", new CustomerHandler(customerTree));
+        server.createContext("/", new StaticFileHandler());
+
+        server.setExecutor(null);
+        System.out.println("Starting server on port 8080...");
+        System.out.println("Open http://localhost:8080 in your browser.");
+        server.start();
+    }
+
+    private static void initData() {
+        initGraphData();
+        tourList = new MyLinkedList();
+        tourList.addLocation(new TourLocation("HN", "Ha Noi", "Thu do", 0, 300, 100));
+        tourList.addLocation(new TourLocation("DN", "Da Nang", "Bien dep", 0, 400, 300));
+        tourList.addLocation(new TourLocation("HCM", "Ho Chi Minh", "Sai Gon", 0, 350, 500));
+
+        customerTree = new MyBST();
+        customerTree.insert(new Customer("CUS001", "Nguyen Van A", "0901234567", "a@gmail.com"));
+        customerTree.insert(new Customer("CUS002", "Tran Thi B", "0912345678", "b@gmail.com"));
+        customerTree.insert(new Customer("CUS003", "Le Van C", "0923456789", "c@gmail.com"));
+    }
+
+    private static void initGraphData() {
+        graph = new MyGraph();
+        graph.addVertex(new TourLocation("HN", "Ha Noi", "Thu do", 0, 300, 100));
+        graph.addVertex(new TourLocation("DN", "Da Nang", "Bien dep", 0, 400, 300));
+        graph.addVertex(new TourLocation("HCM", "Ho Chi Minh", "Sai Gon", 0, 350, 500));
+        graph.addVertex(new TourLocation("NT", "Nha Trang", "Bien xanh", 0, 450, 400));
+        graph.addVertex(new TourLocation("DL", "Da Lat", "Mong mo", 0, 300, 400));
+
+        graph.addEdge(0, 1, 700);
+        graph.addEdge(1, 2, 900);
+        graph.addEdge(1, 3, 500);
+        graph.addEdge(3, 4, 150);
+        graph.addEdge(4, 2, 300);
+    }
+
+    static class LocationsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange t) throws IOException {
+            try {
+                t.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                List<TourLocation> locations = graph.getAllLocations();
+                List<MyGraph.Edge> edges = graph.getAllEdges();
+
+                StringBuilder json = new StringBuilder("{ \"locations\": [");
+                for (int i = 0; i < locations.size(); i++) {
+                    TourLocation loc = locations.get(i);
+                    json.append(String.format("{\"id\":\"%s\", \"name\":\"%s\", \"x\":%d, \"y\":%d}",
+                            loc.getId(), loc.getName(), loc.getX(), loc.getY()));
+                    if (i < locations.size() - 1) json.append(",");
+                }
+                json.append("], \"edges\": [");
+                for (int i = 0; i < edges.size(); i++) {
+                    MyGraph.Edge edge = edges.get(i);
+                    json.append(String.format("{\"start\":\"%s\", \"end\":\"%s\", \"weight\":%d}",
+                            edge.startId, edge.endId, edge.weight));
+                    if (i < edges.size() - 1) json.append(",");
+                }
+                json.append("] }");
+
+                String response = json.toString();
+                t.sendResponseHeaders(200, response.getBytes("UTF-8").length);
+                OutputStream os = t.getResponseBody();
+                os.write(response.getBytes("UTF-8"));
+                os.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                String error = "{\"error\": \"" + e.getMessage() + "\"}";
+                t.sendResponseHeaders(500, error.length());
+                t.getResponseBody().write(error.getBytes());
+                t.close();
+            }
+        }
+    }
+
+    static class FindPathHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange t) throws IOException {
+            t.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            URI requestedUri = t.getRequestURI();
+            String query = requestedUri.getQuery();
+            Map<String, String> params = queryToMap(query);
+
+            String startId = params.get("start");
+            String endId = params.get("end");
+            String response = "";
+            int statusCode = 200;
+
+            if (startId == null || endId == null) {
+                response = "{\"error\": \"Missing start or end parameter\"}";
+                statusCode = 400;
+            } else {
+                List<TourLocation> path = graph.getPath(startId, endId);
+                if (path == null) {
+                    response = "{\"error\": \"No path found\"}";
+                } else {
+                    StringBuilder json = new StringBuilder("[");
+                    for (int i = 0; i < path.size(); i++) {
+                        TourLocation loc = path.get(i);
+                        json.append(String.format("{\"id\":\"%s\", \"name\":\"%s\", \"x\":%d, \"y\":%d}",
+                                loc.getId(), loc.getName(), loc.getX(), loc.getY()));
+                        if (i < path.size() - 1) json.append(",");
+                    }
+                    json.append("]");
+                    response = json.toString();
+                }
+            }
+
+            t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes("UTF-8"));
+            os.close();
+        }
+
+        private Map<String, String> queryToMap(String query) {
+            Map<String, String> result = new HashMap<>();
+            if (query == null) return result;
+            for (String param : query.split("&")) {
+                String[] pair = param.split("=");
+                if (pair.length > 1) result.put(pair[0], pair[1]);
+                else result.put(pair[0], "");
+            }
+            return result;
+        }
+    }
+
+    static class StaticFileHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange t) throws IOException {
+            String path = t.getRequestURI().getPath();
+            if ("/".equals(path)) path = "/index.html";
+            File file = new File("src/main/resource/public" + path);
+
+            if (file.exists()) {
+                t.sendResponseHeaders(200, file.length());
+                Files.copy(file.toPath(), t.getResponseBody());
+                t.close();
+            } else {
+                String response = "404 Not Found";
+                t.sendResponseHeaders(404, response.length());
+                t.getResponseBody().write(response.getBytes());
+                t.close();
+            }
+        }
+    }
+}
+```
+
+---
+
+## UploadHandler.java
+`src/main/java/com/travelplanner/app/UploadHandler.java`
+
+- Handler upload ảnh: nhận Base64 (JSON) hoặc multipart/form-data
+- Lưu file vào `src/main/resource/public/uploads`
+- Trả về `{"url": "/uploads/filename"}`
+
+*(Mã nguồn đầy đủ: xem file UploadHandler.java trong project)*
+
+---
+
+## Grapapp.java
+`src/main/java/com/travelplanner/app/Grapapp.java`
+
+```java
+package com.travelplanner.app;
+
+import com.travelplanner.entities.TourLocation;
+import com.travelplanner.structures.MyGraph;
+
+public class Grapapp {
+    public static void main(String[] args) {
+        System.out.println("=== TEST THUẬT TOÁN DIJKSTRA (TÌM ĐƯỜNG) ===");
+
+        MyGraph graph = new MyGraph();
+
+        graph.addVertex(new TourLocation("HN", "Ha Noi", "Thu do", 0));
+        graph.addVertex(new TourLocation("DN", "Da Nang", "Bien dep", 0));
+        graph.addVertex(new TourLocation("HCM", "Ho Chi Minh", "Sai Gon", 0));
+        graph.addVertex(new TourLocation("NT", "Nha Trang", "Bien xanh", 0));
+        graph.addVertex(new TourLocation("DL", "Da Lat", "Mong mo", 0));
+
+        graph.addEdge(0, 1, 700);
+        graph.addEdge(1, 2, 900);
+        graph.addEdge(1, 3, 500);
+        graph.addEdge(3, 4, 150);
+        graph.addEdge(4, 2, 300);
+
+        System.out.println("\n--- Kịch bản 1: Đi từ Đà Nẵng -> HCM ---");
+        graph.findShortestPath("DN", "HCM");
+
+        System.out.println("\n--- Kịch bản 2: Đi từ Hà Nội -> Đà Lạt ---");
+        graph.findShortestPath("HN", "DL");
+    }
+}
+```
+
+---
+
+## MyGraph.java
+`src/main/java/com/travelplanner/structures/MyGraph.java`
+
+- Ma trận kề `adjMat`, danh sách đỉnh `vertexList`
+- `addVertex(TourLocation)`, `addEdge(start, end, weight)`
+- `findShortestPath(startId, endId)` - Dijkstra in ra console
+- `getPath(startId, endId)` - Dijkstra trả về List cho API
+- `getAllLocations()`, `getAllEdges()` - phục vụ Web
+- Inner class `Edge { startId, endId, weight }`
+
+*(Mã nguồn đầy đủ: xem file MyGraph.java trong project)*
+
+---
+
+## MyGraphTest.java
+`src/test/java/com/travelplanner/structures/MyGraphTest.java`
+
+```java
+package com.travelplanner.structures;
+
+import com.travelplanner.entities.TourLocation;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MyGraphTest {
+
+    private TourLocation createLoc(String id) {
+        return new TourLocation(id, "City " + id, "Dep", 100);
+    }
+
+    @Test
+    public void testAddVertexAndEdge() {
+        MyGraph graph = new MyGraph();
+
+        TourLocation locA = createLoc("A");
+        TourLocation locB = createLoc("B");
+        TourLocation locC = createLoc("C");
+
+        graph.addVertex(locA);
+        graph.addVertex(locB);
+        graph.addVertex(locC);
+
+        assertEquals(3, graph.getVertexCount());
+
+        graph.addEdge(0, 1, 50);
+        graph.addEdge(1, 2, 100);
+
+        assertEquals(50, graph.getDistance(0, 1));
+        assertEquals(50, graph.getDistance(1, 0));
+        assertEquals(100, graph.getDistance(1, 2));
+        assertEquals(0, graph.getDistance(0, 2));
+    }
+
+    @Test
+    public void testDijkstra() {
+        MyGraph graph = new MyGraph();
+
+        graph.addVertex(createLoc("A"));
+        graph.addVertex(createLoc("B"));
+        graph.addVertex(createLoc("C"));
+
+        graph.addEdge(0, 1, 10);
+        graph.addEdge(1, 2, 10);
+        graph.addEdge(0, 2, 50);
+
+        // A -> C: Đường ngắn nhất là A -> B -> C (20km), không phải A -> C (50km)
+        java.util.List<TourLocation> path = graph.getPath("A", "C");
+        assertNotNull(path);
+        assertEquals(3, path.size());
+        assertEquals("A", path.get(0).getId());
+        assertEquals("B", path.get(1).getId());
+        assertEquals("C", path.get(2).getId());
+    }
+}
+```

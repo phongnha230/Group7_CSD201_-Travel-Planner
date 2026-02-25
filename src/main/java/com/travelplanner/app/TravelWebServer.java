@@ -75,24 +75,29 @@ public class TravelWebServer {
 
     private static void initGraphData() {
         graph = new MyGraph();
-        // Thêm địa điểm với tọa độ (Giả sử bản đồ 800x600)
-        // HN (Bắc)
-        graph.addVertex(new TourLocation("HN", "Ha Noi", "Thu do", 0, 300, 100));
-        // ĐN (Trung)
-        graph.addVertex(new TourLocation("DN", "Da Nang", "Bien dep", 0, 400, 300));
-        // HCM (Nam)
-        graph.addVertex(new TourLocation("HCM", "Ho Chi Minh", "Sai Gon", 0, 350, 500));
-        // Nha Trang (Gần ĐN, lệch phải)
-        graph.addVertex(new TourLocation("NT", "Nha Trang", "Bien xanh", 0, 450, 400));
-        // Đà Lạt (Tây Nguyên, gần Nha Trang & HCM)
-        graph.addVertex(new TourLocation("DL", "Da Lat", "Mong mo", 0, 300, 400));
 
-        // Thêm đường đi (Edges)
-        graph.addEdge(0, 1, 700); // HN - DN
-        graph.addEdge(1, 2, 900); // DN - HCM
-        graph.addEdge(1, 3, 500); // DN - NT
-        graph.addEdge(3, 4, 150); // NT - DL
-        graph.addEdge(4, 2, 300); // DL - HCM
+        // Try to load from file first
+        String dataFile = "src/main/resource/map_data.txt";
+        try {
+            graph.loadFromFile(dataFile);
+            System.out.println("✅ Graph data loaded from file successfully!");
+        } catch (IOException e) {
+            System.out.println("⚠️ Could not load from file: " + e.getMessage());
+            System.out.println("📝 Using hard-coded data as fallback...");
+
+            // Fallback: Hard-coded data
+            graph.addVertex(new TourLocation("HN", "Ha Noi", "Thu do", 50.0, 300, 100));
+            graph.addVertex(new TourLocation("DN", "Da Nang", "Bien dep", 80.0, 400, 300));
+            graph.addVertex(new TourLocation("HCM", "Ho Chi Minh", "Sai Gon", 100.0, 350, 500));
+            graph.addVertex(new TourLocation("NT", "Nha Trang", "Bien xanh", 75.0, 450, 400));
+            graph.addVertex(new TourLocation("DL", "Da Lat", "Mong mo", 60.0, 300, 400));
+
+            graph.addEdge(0, 1, 700); // HN - DN
+            graph.addEdge(1, 2, 900); // DN - HCM
+            graph.addEdge(1, 3, 500); // DN - NT
+            graph.addEdge(3, 4, 150); // NT - DL
+            graph.addEdge(4, 2, 300); // DL - HCM
+        }
     }
 
     // Handler cho /api/locations

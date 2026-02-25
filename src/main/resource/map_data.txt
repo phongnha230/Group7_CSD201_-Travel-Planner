@@ -1,0 +1,17 @@
+# Travel Planner Map Data
+# Format: VERTEX|id|name|description|price|x|y
+# Format: EDGE|startId|endId|weight
+
+# Vertices (Locations)
+VERTEX|HN|Ha Noi|Thu do|50.0|300|100
+VERTEX|DN|Da Nang|Bien dep|80.0|400|300
+VERTEX|HCM|Ho Chi Minh|Sai Gon|100.0|350|500
+VERTEX|NT|Nha Trang|Bien xanh|75.0|450|400
+VERTEX|DL|Da Lat|Mong mo|60.0|300|400
+
+# Edges (Routes with distances in km)
+EDGE|HN|DN|700
+EDGE|DN|HCM|900
+EDGE|DN|NT|500
+EDGE|NT|DL|150
+EDGE|DL|HCM|300

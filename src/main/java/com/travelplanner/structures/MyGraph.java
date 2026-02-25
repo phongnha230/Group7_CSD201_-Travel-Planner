@@ -1,6 +1,9 @@
 package com.travelplanner.structures;
 
 import com.travelplanner.entities.TourLocation;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Stack; // Dùng để in ngược đường đi từ đích về đầu
 
 public class MyGraph {
@@ -34,16 +37,6 @@ public class MyGraph {
     public void addEdge(int start, int end, int weight) {
         adjMat[start][end] = weight;
         adjMat[end][start] = weight; // Đồ thị vô hướng (2 chiều như nhau)
-    }
-
-    // Helper: Tìm index của địa điểm theo ID (Ví dụ: "HN" -> 0)
-    public int findIndexById(String id) {
-        for (int i = 0; i < nVerts; i++) {
-            if (vertexList[i].getId().equalsIgnoreCase(id)) {
-                return i;
-            }
-        }
-        return -1; // Không tìm thấy
     }
 
     // ==========================================================
@@ -152,6 +145,83 @@ public class MyGraph {
         return list;
     }
 
+    // ========== FILE I/O - Đọc dữ liệu từ file ==========
+    /**
+     * Load graph data from text file
+     * Format:
+     * VERTEX|id|name|description|price|x|y
+     * EDGE|startId|endId|weight
+     * 
+     * @param filename Path to the data file
+     * @throws IOException if file cannot be read
+     */
+    public void loadFromFile(String filename) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        String line;
+        int lineNumber = 0;
+
+        try {
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                line = line.trim();
+
+                // Skip empty lines and comments
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] parts = line.split("\\|");
+
+                if (parts[0].equals("VERTEX")) {
+                    // Format: VERTEX|id|name|description|price|x|y
+                    if (parts.length != 7) {
+                        System.err.println("Warning: Invalid VERTEX format at line " + lineNumber);
+                        continue;
+                    }
+
+                    String id = parts[1].trim();
+                    String name = parts[2].trim();
+                    String description = parts[3].trim();
+                    double price = Double.parseDouble(parts[4].trim());
+                    int x = Integer.parseInt(parts[5].trim());
+                    int y = Integer.parseInt(parts[6].trim());
+
+                    TourLocation location = new TourLocation(id, name, description, price, x, y);
+                    addVertex(location);
+
+                } else if (parts[0].equals("EDGE")) {
+                    // Format: EDGE|startId|endId|weight
+                    if (parts.length != 4) {
+                        System.err.println("Warning: Invalid EDGE format at line " + lineNumber);
+                        continue;
+                    }
+
+                    String startId = parts[1].trim();
+                    String endId = parts[2].trim();
+                    int weight = Integer.parseInt(parts[3].trim());
+
+                    int startIdx = findIndexById(startId);
+                    int endIdx = findIndexById(endId);
+
+                    if (startIdx == -1 || endIdx == -1) {
+                        System.err.println("Warning: Vertex not found for edge at line " + lineNumber);
+                        continue;
+                    }
+
+                    addEdge(startIdx, endIdx, weight);
+                }
+            }
+
+            System.out.println("✅ Loaded " + nVerts + " vertices from file: " + filename);
+
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number at line " + lineNumber + ": " + e.getMessage());
+            throw new IOException("Invalid number format in file", e);
+        } finally {
+            reader.close();
+        }
+    }
+
     // Tìm đường và trả về danh sách các địa điểm (thay vì in ra console)
     public java.util.List<TourLocation> getPath(String startId, String endId) {
         int startNode = findIndexById(startId);
@@ -251,5 +321,18 @@ public class MyGraph {
 
     public TourLocation getVertex(int index) {
         return vertexList[index];
+    }
+
+    /**
+     * Helper method to find vertex index by ID
+     * Used by loadFromFile() and other methods
+     */
+    private int findIndexById(String id) {
+        for (int i = 0; i < nVerts; i++) {
+            if (vertexList[i].getId().equals(id)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

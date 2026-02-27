@@ -49,8 +49,8 @@ public class UploadHandler implements HttpHandler {
             }
 
             sendJson(t, 200, response);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | RuntimeException e) {
+            System.err.println("UploadHandler error: " + e.getMessage());
             sendJson(t, 500, "{\"error\": \"" + escapeJson(e.getMessage()) + "\"}");
         }
     }
@@ -178,7 +178,9 @@ public class UploadHandler implements HttpHandler {
     private void sendJson(HttpExchange t, int status, String json) throws IOException {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         t.sendResponseHeaders(status, bytes.length);
-        t.getResponseBody().write(bytes);
+        try (OutputStream os = t.getResponseBody()) {
+            os.write(bytes);
+        }
         t.close();
     }
 }

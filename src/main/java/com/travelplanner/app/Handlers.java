@@ -19,8 +19,8 @@ import java.util.List;
 
 // Handler cho /api/tour (Linked List operations)
 class TourHandler implements HttpHandler {
-    private MyLinkedList tourList;
-    private MyGraph graph;
+    private final MyLinkedList tourList;
+    private final MyGraph graph;
 
     public TourHandler(MyLinkedList tourList, MyGraph graph) {
         this.tourList = tourList;
@@ -36,7 +36,8 @@ class TourHandler implements HttpHandler {
         int statusCode = 200;
 
         try {
-            if ("GET".equals(method)) {
+            switch (method) {
+            case "GET": {
                 // Get all tour locations
                 Object[] locations = tourList.toArray();
                 StringBuilder json = new StringBuilder("[");
@@ -54,7 +55,9 @@ class TourHandler implements HttpHandler {
                 json.append("]");
                 response = json.toString();
 
-            } else if ("POST".equals(method)) {
+                break;
+            }
+            case "POST": {
                 // Add location to tour (với giá cả và ảnh tùy chọn)
                 URI uri = t.getRequestURI();
                 Map<String, String> params = queryToMap(uri.getQuery());
@@ -109,7 +112,9 @@ class TourHandler implements HttpHandler {
                     statusCode = 400;
                 }
 
-            } else if ("DELETE".equals(method)) {
+                break;
+            }
+            case "DELETE": {
                 // Remove location from tour
                 URI uri = t.getRequestURI();
                 Map<String, String> params = queryToMap(uri.getQuery());
@@ -127,18 +132,25 @@ class TourHandler implements HttpHandler {
                     response = "{\"error\": \"Missing id parameter\"}";
                     statusCode = 400;
                 }
+                break;
+            }
+            default:
+                response = "{\"error\": \"Method not allowed\"}";
+                statusCode = 405;
+                break;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
+            System.err.println("TourHandler error: " + e.getMessage());
             response = "{\"error\": \"" + e.getMessage() + "\"}";
             statusCode = 500;
         }
 
-        t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
-        OutputStream os = t.getResponseBody();
-        os.write(response.getBytes("UTF-8"));
-        os.close();
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        t.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = t.getResponseBody()) {
+            os.write(bytes);
+        }
     }
 
     private Map<String, String> queryToMap(String query) {
@@ -149,8 +161,8 @@ class TourHandler implements HttpHandler {
             String[] pair = param.split("=", 2);
             if (pair.length >= 2) {
                 try {
-                    result.put(pair[0], java.net.URLDecoder.decode(pair[1], "UTF-8"));
-                } catch (Exception e) {
+                    result.put(pair[0], java.net.URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
+                } catch (IllegalArgumentException e) {
                     result.put(pair[0], pair[1]);
                 }
             } else {
@@ -168,7 +180,7 @@ class TourHandler implements HttpHandler {
 
 // Handler cho /api/customers (BST operations)
 class CustomerHandler implements HttpHandler {
-    private MyBST customerTree;
+    private final MyBST customerTree;
 
     public CustomerHandler(MyBST customerTree) {
         this.customerTree = customerTree;
@@ -183,7 +195,8 @@ class CustomerHandler implements HttpHandler {
         int statusCode = 200;
 
         try {
-            if ("GET".equals(method)) {
+            switch (method) {
+            case "GET": {
                 URI uri = t.getRequestURI();
                 Map<String, String> params = queryToMap(uri.getQuery());
                 String searchId = params.get("id");
@@ -224,7 +237,9 @@ class CustomerHandler implements HttpHandler {
                     response = sb.toString();
                 }
 
-            } else if ("POST".equals(method)) {
+                break;
+            }
+            case "POST": {
                 // Add customer
                 URI uri = t.getRequestURI();
                 Map<String, String> params = queryToMap(uri.getQuery());
@@ -247,7 +262,9 @@ class CustomerHandler implements HttpHandler {
                     statusCode = 400;
                 }
 
-            } else if ("DELETE".equals(method)) {
+                break;
+            }
+            case "DELETE": {
                 // Delete customer
                 URI uri = t.getRequestURI();
                 Map<String, String> params = queryToMap(uri.getQuery());
@@ -260,18 +277,25 @@ class CustomerHandler implements HttpHandler {
                     response = "{\"error\": \"Missing id parameter\"}";
                     statusCode = 400;
                 }
+                break;
+            }
+            default:
+                response = "{\"error\": \"Method not allowed\"}";
+                statusCode = 405;
+                break;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
+            System.err.println("CustomerHandler error: " + e.getMessage());
             response = "{\"error\": \"" + e.getMessage() + "\"}";
             statusCode = 500;
         }
 
-        t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
-        OutputStream os = t.getResponseBody();
-        os.write(response.getBytes("UTF-8"));
-        os.close();
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        t.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = t.getResponseBody()) {
+            os.write(bytes);
+        }
     }
 
     private Map<String, String> queryToMap(String query) {
@@ -287,7 +311,7 @@ class CustomerHandler implements HttpHandler {
                     result.put(pair[0], "");
                 }
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             // ignore
         }
         return result;

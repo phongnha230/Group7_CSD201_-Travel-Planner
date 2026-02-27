@@ -9,8 +9,8 @@ import java.util.Stack; // Dùng để in ngược đường đi từ đích v�
 public class MyGraph {
     private final int MAX_VERTS = 20; // Giới hạn số địa điểm
     private final int INFINITY = 1000000000; // Số cực lớn (tượng trưng cho không có đường)
-    private TourLocation[] vertexList; // Danh sách địa điểm
-    private int[][] adjMat; // Ma trận kề lưu khoảng cách (km)
+    private final TourLocation[] vertexList; // Danh sách địa điểm
+    private final int[][] adjMat; // Ma trận kề lưu khoảng cách (km)
     private int nVerts; // Số địa điểm hiện có
 
     public MyGraph() {
@@ -156,11 +156,10 @@ public class MyGraph {
      * @throws IOException if file cannot be read
      */
     public void loadFromFile(String filename) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
         String line;
         int lineNumber = 0;
 
-        try {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
                 line = line.trim();
@@ -217,8 +216,6 @@ public class MyGraph {
         } catch (NumberFormatException e) {
             System.err.println("Error parsing number at line " + lineNumber + ": " + e.getMessage());
             throw new IOException("Invalid number format in file", e);
-        } finally {
-            reader.close();
         }
     }
 
@@ -336,3 +333,4 @@ public class MyGraph {
         return -1;
     }
 }
+

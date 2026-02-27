@@ -12,6 +12,7 @@ import com.travelplanner.structures.MyBST;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -134,17 +135,19 @@ public class TravelWebServer {
                 json.append("] }");
 
                 String response = json.toString();
-                t.sendResponseHeaders(200, response.getBytes("UTF-8").length);
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes("UTF-8"));
-                os.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+                byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+                t.sendResponseHeaders(200, bytes.length);
+                try (OutputStream os = t.getResponseBody()) {
+                    os.write(bytes);
+                }
+            } catch (IOException | RuntimeException e) {
+                System.err.println("LocationsHandler error: " + e.getMessage());
                 String error = "{\"error\": \"" + e.getMessage() + "\"}";
-                t.sendResponseHeaders(500, error.length());
-                OutputStream os = t.getResponseBody();
-                os.write(error.getBytes());
-                os.close();
+                byte[] errorBytes = error.getBytes(StandardCharsets.UTF_8);
+                t.sendResponseHeaders(500, errorBytes.length);
+                try (OutputStream os = t.getResponseBody()) {
+                    os.write(errorBytes);
+                }
             }
         }
     }
@@ -164,7 +167,7 @@ public class TravelWebServer {
             String startId = params.get("start");
             String endId = params.get("end");
 
-            String response = "";
+            String response;
             int statusCode = 200;
 
             if (startId == null || endId == null) {
@@ -190,10 +193,11 @@ public class TravelWebServer {
                 }
             }
 
-            t.sendResponseHeaders(statusCode, response.getBytes("UTF-8").length);
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes("UTF-8"));
-            os.close();
+            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+            t.sendResponseHeaders(statusCode, bytes.length);
+            try (OutputStream os = t.getResponseBody()) {
+                os.write(bytes);
+            }
         }
 
         private Map<String, String> queryToMap(String query) {
@@ -228,15 +232,16 @@ public class TravelWebServer {
 
             if (file.exists()) {
                 t.sendResponseHeaders(200, file.length());
-                OutputStream os = t.getResponseBody();
-                Files.copy(file.toPath(), os);
-                os.close();
+                try (OutputStream os = t.getResponseBody()) {
+                    Files.copy(file.toPath(), os);
+                }
             } else {
                 String response = "404 Main Not Found (File: " + file.getAbsolutePath() + ")";
-                t.sendResponseHeaders(404, response.length());
-                OutputStream os = t.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
+                byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+                t.sendResponseHeaders(404, bytes.length);
+                try (OutputStream os = t.getResponseBody()) {
+                    os.write(bytes);
+                }
             }
         }
     }

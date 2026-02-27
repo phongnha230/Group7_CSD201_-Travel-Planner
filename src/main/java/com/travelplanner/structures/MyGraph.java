@@ -4,25 +4,33 @@ import com.travelplanner.entities.TourLocation;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Stack; // Dùng để in ngược đường đi từ đích về đầu
+import java.util.Stack;
 
 public class MyGraph {
-    private final int MAX_VERTS = 20; // Giới hạn số địa điểm
-    private final int INFINITY = 1000000000; // Số cực lớn (tượng trưng cho không có đường)
-    private final TourLocation[] vertexList; // Danh sách địa điểm
-    private final int[][] adjMat; // Ma trận kề lưu khoảng cách (km)
-    private int nVerts; // Số địa điểm hiện có
+    private static final int MAX_VERTS = 20;
+    private static final int INFINITY = 1000000000;
+
+    private final TourLocation[] vertexList;
+    private final java.util.List<java.util.List<Neighbor>> adjList;
+    private int nVerts;
+
+    private static class Neighbor {
+        int to;
+        int weight;
+
+        Neighbor(int to, int weight) {
+            this.to = to;
+            this.weight = weight;
+        }
+    }
 
     public MyGraph() {
         vertexList = new TourLocation[MAX_VERTS];
-        adjMat = new int[MAX_VERTS][MAX_VERTS];
+        adjList = new java.util.ArrayList<>();
         nVerts = 0;
 
-        // Khởi tạo ma trận: Mặc định khoảng cách là 0 (chưa nối)
         for (int i = 0; i < MAX_VERTS; i++) {
-            for (int j = 0; j < MAX_VERTS; j++) {
-                adjMat[i][j] = 0;
-            }
+            adjList.add(new java.util.ArrayList<>());
         }
     }
 
@@ -30,205 +38,24 @@ public class MyGraph {
         if (nVerts < MAX_VERTS) {
             vertexList[nVerts++] = loc;
         } else {
-            System.out.println("Đồ thị đã đầy!");
+            System.out.println("Graph is full!");
         }
     }
 
     public void addEdge(int start, int end, int weight) {
-        adjMat[start][end] = weight;
-        adjMat[end][start] = weight; // Đồ thị vô hướng (2 chiều như nhau)
+        upsertNeighbor(start, end, weight);
+        upsertNeighbor(end, start, weight);
     }
 
-    // ==========================================================
-    // 🚀 THUẬT TOÁN DIJKSTRA (TÌM ĐƯỜNG NGẮN NHẤT) 🚀
-    // ==========================================================
     public void findShortestPath(String startId, String endId) {
         int startNode = findIndexById(startId);
         int endNode = findIndexById(endId);
 
         if (startNode == -1 || endNode == -1) {
-            System.out.println("Lỗi: Không tìm thấy địa điểm khởi hành hoặc đích đến!");
+            System.out.println("Error: Start or end location not found!");
             return;
         }
 
-        // 1. Khởi tạo các mảng cần thiết
-        int[] distance = new int[MAX_VERTS]; // Lưu khoảng cách ngắn nhất từ Start -> i
-        int[] parent = new int[MAX_VERTS]; // Lưu vết đường đi (Node cha của i là ai?)
-        boolean[] visited = new boolean[MAX_VERTS]; // Đánh dấu đã chốt phương án chưa
-
-        // Cài đặt ban đầu
-        for (int i = 0; i < nVerts; i++) {
-            distance[i] = INFINITY; // Chưa biết đường thì coi như xa vô tận
-            visited[i] = false;
-            parent[i] = -1; // Chưa có cha
-        }
-        distance[startNode] = 0; // Khoảng cách từ mình đến mình là 0
-
-        // 2. Bắt đầu thuật toán
-        for (int i = 0; i < nVerts; i++) {
-            // Bước A: Chọn đỉnh chưa thăm có khoảng cách nhỏ nhất
-            int u = -1;
-            int minDist = INFINITY;
-            for (int v = 0; v < nVerts; v++) {
-                if (!visited[v] && distance[v] < minDist) {
-                    minDist = distance[v];
-                    u = v;
-                }
-            }
-
-            // Nếu không còn đỉnh nào để đi hoặc đích đến không thể tới được
-            if (u == -1 || distance[u] == INFINITY)
-                break;
-
-            visited[u] = true; // Chốt đỉnh u
-
-            // Bước B: "Thư giãn" (Relax) các hàng xóm của u
-            for (int v = 0; v < nVerts; v++) {
-                // Nếu có đường nối (adjMat[u][v] > 0) và chưa thăm v
-                if (adjMat[u][v] != 0 && !visited[v]) {
-                    int newDist = distance[u] + adjMat[u][v];
-                    // Nếu tìm thấy đường mới ngắn hơn đường cũ
-                    if (newDist < distance[v]) {
-                        distance[v] = newDist; // Cập nhật khoảng cách
-                        parent[v] = u; // Lưu vết: Muốn đến v thì phải qua u
-                    }
-                }
-            }
-        }
-
-        // 3. In kết quả đường đi
-        printPathResult(startNode, endNode, distance, parent);
-    }
-
-    // Helper: In kết quả ra màn hình cho đẹp
-    private void printPathResult(int start, int end, int[] distance, int[] parent) {
-        if (distance[end] == INFINITY) {
-            System.out.println("Rất tiếc! Không có đường đi từ " + vertexList[start].getName()
-                    + " đến " + vertexList[end].getName());
-            return;
-        }
-
-        System.out.println("\n=== KẾT QUẢ TÌM ĐƯỜNG (DIJKSTRA) ===");
-        System.out.println("Từ: " + vertexList[start].getName());
-        System.out.println("Đến: " + vertexList[end].getName());
-        System.out.println("Tổng quãng đường: " + distance[end] + " km");
-        System.out.print("Lộ trình: ");
-
-        // Truy vết ngược từ Đích về Đầu (End -> Start) dùng Stack
-        Stack<Integer> pathStack = new Stack<>();
-        int current = end;
-        while (current != -1) {
-            pathStack.push(current);
-            current = parent[current];
-        }
-
-        // In ra từ Stack
-        while (!pathStack.isEmpty()) {
-            int nodeIdx = pathStack.pop();
-            System.out.print(vertexList[nodeIdx].getName());
-            if (!pathStack.isEmpty())
-                System.out.print(" -> ");
-        }
-        System.out.println("\n====================================");
-    }
-
-    // ==========================================================
-    // 🌍 API METHODS CHO WEB SERVER 🌍
-    // ==========================================================
-
-    // Lấy danh sách tất cả địa điểm (để hiển thị lên bản đồ và dropdown)
-    public java.util.List<TourLocation> getAllLocations() {
-        java.util.List<TourLocation> list = new java.util.ArrayList<>();
-        for (int i = 0; i < nVerts; i++) {
-            list.add(vertexList[i]);
-        }
-        return list;
-    }
-
-    // ========== FILE I/O - Đọc dữ liệu từ file ==========
-    /**
-     * Load graph data from text file
-     * Format:
-     * VERTEX|id|name|description|price|x|y
-     * EDGE|startId|endId|weight
-     * 
-     * @param filename Path to the data file
-     * @throws IOException if file cannot be read
-     */
-    public void loadFromFile(String filename) throws IOException {
-        String line;
-        int lineNumber = 0;
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                line = line.trim();
-
-                // Skip empty lines and comments
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-
-                String[] parts = line.split("\\|");
-
-                if (parts[0].equals("VERTEX")) {
-                    // Format: VERTEX|id|name|description|price|x|y
-                    if (parts.length != 7) {
-                        System.err.println("Warning: Invalid VERTEX format at line " + lineNumber);
-                        continue;
-                    }
-
-                    String id = parts[1].trim();
-                    String name = parts[2].trim();
-                    String description = parts[3].trim();
-                    double price = Double.parseDouble(parts[4].trim());
-                    int x = Integer.parseInt(parts[5].trim());
-                    int y = Integer.parseInt(parts[6].trim());
-
-                    TourLocation location = new TourLocation(id, name, description, price, x, y);
-                    addVertex(location);
-
-                } else if (parts[0].equals("EDGE")) {
-                    // Format: EDGE|startId|endId|weight
-                    if (parts.length != 4) {
-                        System.err.println("Warning: Invalid EDGE format at line " + lineNumber);
-                        continue;
-                    }
-
-                    String startId = parts[1].trim();
-                    String endId = parts[2].trim();
-                    int weight = Integer.parseInt(parts[3].trim());
-
-                    int startIdx = findIndexById(startId);
-                    int endIdx = findIndexById(endId);
-
-                    if (startIdx == -1 || endIdx == -1) {
-                        System.err.println("Warning: Vertex not found for edge at line " + lineNumber);
-                        continue;
-                    }
-
-                    addEdge(startIdx, endIdx, weight);
-                }
-            }
-
-            System.out.println("✅ Loaded " + nVerts + " vertices from file: " + filename);
-
-        } catch (NumberFormatException e) {
-            System.err.println("Error parsing number at line " + lineNumber + ": " + e.getMessage());
-            throw new IOException("Invalid number format in file", e);
-        }
-    }
-
-    // Tìm đường và trả về danh sách các địa điểm (thay vì in ra console)
-    public java.util.List<TourLocation> getPath(String startId, String endId) {
-        int startNode = findIndexById(startId);
-        int endNode = findIndexById(endId);
-
-        if (startNode == -1 || endNode == -1)
-            return null;
-
-        // --- Tái sử dụng logic Dijkstra (Copy từ trên xuống hoặc tách hàm riêng) ---
-        // Để nhanh gọn, mình viết lại phần core Dijkstra ở đây
         int[] distance = new int[MAX_VERTS];
         int[] parent = new int[MAX_VERTS];
         boolean[] visited = new boolean[MAX_VERTS];
@@ -250,13 +77,16 @@ public class MyGraph {
                 }
             }
 
-            if (u == -1 || distance[u] == INFINITY)
+            if (u == -1 || distance[u] == INFINITY) {
                 break;
+            }
+
             visited[u] = true;
 
-            for (int v = 0; v < nVerts; v++) {
-                if (adjMat[u][v] != 0 && !visited[v]) {
-                    int newDist = distance[u] + adjMat[u][v];
+            for (Neighbor neighbor : adjList.get(u)) {
+                int v = neighbor.to;
+                if (!visited[v]) {
+                    int newDist = distance[u] + neighbor.weight;
                     if (newDist < distance[v]) {
                         distance[v] = newDist;
                         parent[v] = u;
@@ -264,24 +94,177 @@ public class MyGraph {
                 }
             }
         }
-        // ------------------------------------------------------------
 
-        if (distance[endNode] == INFINITY)
-            return null; // Không có đường
+        printPathResult(startNode, endNode, distance, parent);
+    }
 
-        // Truy vết để tạo List kết quả
+    private void printPathResult(int start, int end, int[] distance, int[] parent) {
+        if (distance[end] == INFINITY) {
+            System.out.println("No path from " + vertexList[start].getName() + " to " + vertexList[end].getName());
+            return;
+        }
+
+        System.out.println("\n=== SHORTEST PATH RESULT (DIJKSTRA) ===");
+        System.out.println("From: " + vertexList[start].getName());
+        System.out.println("To: " + vertexList[end].getName());
+        System.out.println("Total distance: " + distance[end] + " km");
+        System.out.print("Path: ");
+
+        Stack<Integer> pathStack = new Stack<>();
+        int current = end;
+        while (current != -1) {
+            pathStack.push(current);
+            current = parent[current];
+        }
+
+        while (!pathStack.isEmpty()) {
+            int nodeIdx = pathStack.pop();
+            System.out.print(vertexList[nodeIdx].getName());
+            if (!pathStack.isEmpty()) {
+                System.out.print(" -> ");
+            }
+        }
+        System.out.println("\n====================================");
+    }
+
+    public java.util.List<TourLocation> getAllLocations() {
+        java.util.List<TourLocation> list = new java.util.ArrayList<>();
+        for (int i = 0; i < nVerts; i++) {
+            list.add(vertexList[i]);
+        }
+        return list;
+    }
+
+    /**
+     * Load graph data from text file
+     * Format:
+     * VERTEX|id|name|description|price|x|y
+     * EDGE|startId|endId|weight
+     *
+     * @param filename Path to the data file
+     * @throws IOException if file cannot be read
+     */
+    public void loadFromFile(String filename) throws IOException {
+        String line;
+        int lineNumber = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                line = line.trim();
+
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] parts = line.split("\\|");
+
+                if (parts[0].equals("VERTEX")) {
+                    if (parts.length != 7) {
+                        System.err.println("Warning: Invalid VERTEX format at line " + lineNumber);
+                        continue;
+                    }
+
+                    String id = parts[1].trim();
+                    String name = parts[2].trim();
+                    String description = parts[3].trim();
+                    double price = Double.parseDouble(parts[4].trim());
+                    int x = Integer.parseInt(parts[5].trim());
+                    int y = Integer.parseInt(parts[6].trim());
+
+                    TourLocation location = new TourLocation(id, name, description, price, x, y);
+                    addVertex(location);
+
+                } else if (parts[0].equals("EDGE")) {
+                    if (parts.length != 4) {
+                        System.err.println("Warning: Invalid EDGE format at line " + lineNumber);
+                        continue;
+                    }
+
+                    String startId = parts[1].trim();
+                    String endId = parts[2].trim();
+                    int weight = Integer.parseInt(parts[3].trim());
+
+                    int startIdx = findIndexById(startId);
+                    int endIdx = findIndexById(endId);
+
+                    if (startIdx == -1 || endIdx == -1) {
+                        System.err.println("Warning: Vertex not found for edge at line " + lineNumber);
+                        continue;
+                    }
+
+                    addEdge(startIdx, endIdx, weight);
+                }
+            }
+
+            System.out.println("Loaded " + nVerts + " vertices from file: " + filename);
+
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number at line " + lineNumber + ": " + e.getMessage());
+            throw new IOException("Invalid number format in file", e);
+        }
+    }
+
+    public java.util.List<TourLocation> getPath(String startId, String endId) {
+        int startNode = findIndexById(startId);
+        int endNode = findIndexById(endId);
+
+        if (startNode == -1 || endNode == -1) {
+            return null;
+        }
+
+        int[] distance = new int[MAX_VERTS];
+        int[] parent = new int[MAX_VERTS];
+        boolean[] visited = new boolean[MAX_VERTS];
+
+        for (int i = 0; i < nVerts; i++) {
+            distance[i] = INFINITY;
+            visited[i] = false;
+            parent[i] = -1;
+        }
+        distance[startNode] = 0;
+
+        for (int i = 0; i < nVerts; i++) {
+            int u = -1;
+            int minDist = INFINITY;
+            for (int v = 0; v < nVerts; v++) {
+                if (!visited[v] && distance[v] < minDist) {
+                    minDist = distance[v];
+                    u = v;
+                }
+            }
+
+            if (u == -1 || distance[u] == INFINITY) {
+                break;
+            }
+            visited[u] = true;
+
+            for (Neighbor neighbor : adjList.get(u)) {
+                int v = neighbor.to;
+                if (!visited[v]) {
+                    int newDist = distance[u] + neighbor.weight;
+                    if (newDist < distance[v]) {
+                        distance[v] = newDist;
+                        parent[v] = u;
+                    }
+                }
+            }
+        }
+
+        if (distance[endNode] == INFINITY) {
+            return null;
+        }
+
         java.util.List<TourLocation> path = new java.util.ArrayList<>();
         int current = endNode;
         while (current != -1) {
             path.add(vertexList[current]);
             current = parent[current];
         }
-        java.util.Collections.reverse(path); // Đảo ngược để có Start -> End
+        java.util.Collections.reverse(path);
         return path;
     }
 
-    // Helper class cho Edge (bên trong MyGraph hoặc tách riêng, mình để trong cho
-    // gọn)
     public static class Edge {
         public String startId;
         public String endId;
@@ -294,36 +277,39 @@ public class MyGraph {
         }
     }
 
-    // Lấy danh sách các cạnh để vẽ bản đồ
     public java.util.List<Edge> getAllEdges() {
         java.util.List<Edge> edges = new java.util.ArrayList<>();
         for (int i = 0; i < nVerts; i++) {
-            for (int j = i + 1; j < nVerts; j++) { // Duyệt tam giác trên để không lặp lại (vô hướng)
-                if (adjMat[i][j] > 0) {
-                    edges.add(new Edge(vertexList[i].getId(), vertexList[j].getId(), adjMat[i][j]));
+            for (Neighbor neighbor : adjList.get(i)) {
+                int j = neighbor.to;
+                if (i < j) {
+                    edges.add(new Edge(vertexList[i].getId(), vertexList[j].getId(), neighbor.weight));
                 }
             }
         }
         return edges;
     }
 
-    // Các hàm Getter hỗ trợ Unit Test
     public int getVertexCount() {
         return nVerts;
     }
 
     public int getDistance(int start, int end) {
-        return adjMat[start][end];
+        if (start < 0 || start >= nVerts || end < 0 || end >= nVerts) {
+            return 0;
+        }
+        for (Neighbor neighbor : adjList.get(start)) {
+            if (neighbor.to == end) {
+                return neighbor.weight;
+            }
+        }
+        return 0;
     }
 
     public TourLocation getVertex(int index) {
         return vertexList[index];
     }
 
-    /**
-     * Helper method to find vertex index by ID
-     * Used by loadFromFile() and other methods
-     */
     private int findIndexById(String id) {
         for (int i = 0; i < nVerts; i++) {
             if (vertexList[i].getId().equals(id)) {
@@ -332,5 +318,15 @@ public class MyGraph {
         }
         return -1;
     }
-}
 
+    private void upsertNeighbor(int from, int to, int weight) {
+        java.util.List<Neighbor> neighbors = adjList.get(from);
+        for (Neighbor neighbor : neighbors) {
+            if (neighbor.to == to) {
+                neighbor.weight = weight;
+                return;
+            }
+        }
+        neighbors.add(new Neighbor(to, weight));
+    }
+}

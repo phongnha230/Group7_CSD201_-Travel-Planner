@@ -218,6 +218,21 @@ public class TravelWebServer {
 
     // Handler phục vụ file tĩnh (HTML, CSS, JS)
     static class StaticFileHandler implements HttpHandler {
+        private String getContentType(String path) {
+            String lower = path.toLowerCase();
+            if (lower.endsWith(".html")) return "text/html; charset=UTF-8";
+            if (lower.endsWith(".css")) return "text/css; charset=UTF-8";
+            if (lower.endsWith(".js")) return "application/javascript; charset=UTF-8";
+            if (lower.endsWith(".json")) return "application/json; charset=UTF-8";
+            if (lower.endsWith(".png")) return "image/png";
+            if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+            if (lower.endsWith(".svg")) return "image/svg+xml";
+            if (lower.endsWith(".ico")) return "image/x-icon";
+            if (lower.endsWith(".gif")) return "image/gif";
+            if (lower.endsWith(".webp")) return "image/webp";
+            return "application/octet-stream";
+        }
+
         @Override
         public void handle(HttpExchange t) throws IOException {
             String path = t.getRequestURI().getPath();
@@ -231,6 +246,7 @@ public class TravelWebServer {
             File file = new File("src/main/resource/public" + path);
 
             if (file.exists()) {
+                t.getResponseHeaders().set("Content-Type", getContentType(path));
                 t.sendResponseHeaders(200, file.length());
                 try (OutputStream os = t.getResponseBody()) {
                     Files.copy(file.toPath(), os);
@@ -238,6 +254,7 @@ public class TravelWebServer {
             } else {
                 String response = "404 Main Not Found (File: " + file.getAbsolutePath() + ")";
                 byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+                t.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                 t.sendResponseHeaders(404, bytes.length);
                 try (OutputStream os = t.getResponseBody()) {
                     os.write(bytes);

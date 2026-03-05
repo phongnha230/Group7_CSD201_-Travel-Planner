@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
     <header class="header">
         <div class="header-left">
             <div class="logo">
-                <div class="logo-icon">✈️</div>
+                <div class="logo-icon">&#9992;</div>
                 <div class="logo-text">
                     <span class="logo-title">Travel Planner Pro</span>
                     <span class="logo-subtitle">DSA PROJECT</span>
@@ -22,19 +22,19 @@
         
         <nav class="nav-tabs">
             <button class="nav-tab active" data-tab="tour">
-                <span class="nav-icon">📋</span>
+                <span class="nav-icon">&#128203;</span>
                 Itinerary (Linked List)
             </button>
             <button class="nav-tab" data-tab="customers">
-                <span class="nav-icon">👥</span>
+                <span class="nav-icon">&#128101;</span>
                 Customers (BST)
             </button>
             <button class="nav-tab" data-tab="map">
-                <span class="nav-icon">🗺️</span>
+                <span class="nav-icon">&#128506;</span>
                 Map Optimizer (Graph)
             </button>
             <a href="https://github.com/phongnha230/Group7_CSD201_-Travel-Planner" class="nav-link" target="_blank">
-                <span class="nav-icon">🔗</span>
+                <span class="nav-icon">&#128279;</span>
                 GitHub
             </a>
         </nav>
@@ -45,7 +45,7 @@
                     <span class="user-name">Admin User</span>
                     <span class="user-role">Project Lead</span>
                 </div>
-                <div class="user-avatar">👤</div>
+                <div class="user-avatar">&#128100;</div>
             </div>
         </div>
     </header>
@@ -64,7 +64,7 @@
                     
                     <div class="form-group">
                         <label>
-                            <span class="label-icon">📍</span>
+                            <span class="label-icon">&#128205;</span>
                             Destination Name
                         </label>
                         <select id="tourLocationSelect" class="input-field">
@@ -74,7 +74,7 @@
                     
                     <div class="form-group">
                         <label>
-                            <span class="label-icon">⏱️</span>
+                            <span class="label-icon">&#9201;</span>
                             Duration (Days)
                         </label>
                         <input type="number" id="tourDuration" class="input-field" placeholder="e.g. 3" min="1" value="3">
@@ -82,21 +82,21 @@
                     
                     <div class="form-group">
                         <label>
-                            <span class="label-icon">💰</span>
-                            Giá cả (VNĐ)
+                            <span class="label-icon">&#128176;</span>
+                            Price (VND)
                         </label>
                         <input type="number" id="tourPrice" class="input-field" placeholder="e.g. 500000" min="0" step="1000" value="0">
                     </div>
                     
                     <div class="form-group">
                         <label>
-                            <span class="label-icon">🖼️</span>
-                            Ảnh địa điểm
+                            <span class="label-icon">&#128444;</span>
+                            Location Image
                         </label>
                         <div class="image-upload-area">
                             <input type="file" id="tourImageInput" class="input-file" accept="image/*">
                             <div id="imagePreview" class="image-preview">
-                                <span class="preview-placeholder">Chọn ảnh để upload</span>
+                                <span class="preview-placeholder">Choose image to upload</span>
                             </div>
                         </div>
                     </div>
@@ -112,25 +112,30 @@
                     </div>
                     
                     <button id="addToTourBtn" class="btn-primary btn-full">
-                        <span class="btn-icon">➕</span>
+                        <span class="btn-icon">&#10133;</span>
                         Add to Itinerary
                     </button>
                     
+                    <button id="updateTourBtn" class="btn-secondary btn-full" style="margin-top: 10px;">
+                        <span class="btn-icon">&#9998;</span>
+                        Update Info
+                    </button>
+                    
                     <button id="resetTourBtn" class="btn-secondary btn-full">
-                        <span class="btn-icon">🔄</span>
+                        <span class="btn-icon">&#128260;</span>
                         Reset List
                     </button>
                     
                     <div class="sidebar-stats">
                         <div class="stat-row">
-                            <span class="stat-icon">🔗</span>
+                            <span class="stat-icon">&#128279;</span>
                             <div class="stat-info">
                                 <span class="stat-label">Data Structure</span>
                                 <span class="stat-value">Singly Linked List</span>
                             </div>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-icon">💾</span>
+                            <span class="stat-icon">&#128190;</span>
                             <div class="stat-info">
                                 <span class="stat-label">Memory Used</span>
                                 <span class="stat-value"><span id="nodeCount">0</span> Nodes Allocated</span>
@@ -154,7 +159,7 @@
                     
                     <div id="tourList" class="tour-cards-container">
                         <div class="empty-state">
-                            <div class="empty-icon">📍</div>
+                            <div class="empty-icon">&#128205;</div>
                             <p class="empty-title">No destinations in tour yet.</p>
                             <p class="empty-hint">Add locations from the sidebar to build your itinerary!</p>
                         </div>
@@ -163,14 +168,14 @@
                     <div class="content-footer">
                         <div class="footer-info">
                             <div class="footer-stat">
-                                <span class="footer-icon">🔗</span>
+                                <span class="footer-icon">&#128279;</span>
                                 <div>
                                     <span class="footer-label">Data Structure</span>
                                     <span class="footer-value">Singly Linked List</span>
                                 </div>
                             </div>
                             <div class="footer-stat">
-                                <span class="footer-icon">💾</span>
+                                <span class="footer-icon">&#128190;</span>
                                 <div>
                                     <span class="footer-label">Memory Used</span>
                                     <span class="footer-value" id="memoryUsed">0 Nodes Allocated</span>
@@ -179,7 +184,7 @@
                         </div>
                         <button id="exportBtn" class="btn-export">
                             Export Itinerary JSON
-                            <span class="export-icon">⬇️</span>
+                            <span class="export-icon">&#11015;</span>
                         </button>
                     </div>
                 </div>
@@ -198,11 +203,11 @@
                         </div>
                         <div class="header-actions">
                             <div class="search-box">
-                                <span class="search-icon">🔍</span>
-                                <input type="text" id="searchCustomerId" placeholder="Tìm theo ID (vd: CUS001 hoặc 001)...">
+                                <span class="search-icon">&#128269;</span>
+                                <input type="text" id="searchCustomerId" placeholder="Search by ID (e.g., CUS001 or 001)...">
                             </div>
                             <button id="addCustomerBtn" class="btn-primary">
-                                <span class="btn-icon">➕</span>
+                                <span class="btn-icon">&#10133;</span>
                                 Add Customer
                             </button>
                         </div>
@@ -212,12 +217,12 @@
                     <div class="tree-section">
                         <div class="tree-header">
                             <div class="tree-title">
-                                <span class="tree-icon">🌳</span>
+                                <span class="tree-icon">&#127795;</span>
                                 Tree Visualization
                             </div>
                             <div class="tree-controls">
                                 <span class="depth-badge">Depth: <span id="treeDepth">0</span></span>
-                                <button class="btn-icon-only" id="expandTreeBtn">⛶</button>
+                                <button class="btn-icon-only" id="expandTreeBtn">&#9974;</button>
                             </div>
                         </div>
                         <div class="tree-container">
@@ -254,14 +259,14 @@
                     <div class="db-stats">
                         <h4>DATABASE STATS</h4>
                         <div class="db-stat-row">
-                            <span class="db-icon">👥</span>
+                            <span class="db-icon">&#128101;</span>
                             <div>
                                 <span class="db-value" id="totalCustomers">0</span>
                                 <span class="db-label">Total Customers</span>
                             </div>
                         </div>
                         <div class="db-stat-row">
-                            <span class="db-icon">📊</span>
+                            <span class="db-icon">&#128202;</span>
                             <div>
                                 <span class="db-value" id="treeHeight">0</span>
                                 <span class="db-label">Tree Height (Max)</span>
@@ -283,7 +288,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Add New Customer</h3>
-                        <button class="modal-close" id="closeModalBtn">✕</button>
+                        <button class="modal-close" id="closeModalBtn">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
@@ -302,10 +307,45 @@
                             <label>Email</label>
                             <input type="email" id="custEmail" class="input-field" placeholder="Enter email">
                         </div>
+                        <p id="addCustomerFeedback" class="modal-feedback is-hidden"></p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn-secondary" id="cancelModalBtn">Cancel</button>
                         <button class="btn-primary" id="confirmAddBtn">Add Customer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Detail Modal -->
+            <div id="customerDetailModal" class="modal hidden">
+                <div class="modal-content customer-detail-content">
+                    <div class="modal-header">
+                        <h3>Customer Details</h3>
+                        <button class="modal-close" id="closeDetailModalBtn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Customer ID (Fixed)</label>
+                            <input type="text" id="editCustId" class="input-field fixed-id-input" readonly>
+                            <small class="field-hint">ID is fixed and cannot be changed.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="editCustName" class="input-field" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="editCustPhone" class="input-field" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="editCustEmail" class="input-field" placeholder="Enter email">
+                        </div>
+                        <p id="editCustomerFeedback" class="modal-feedback is-hidden"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" id="cancelDetailModalBtn">Cancel</button>
+                        <button class="btn-primary" id="confirmUpdateBtn">Update Customer</button>
                     </div>
                 </div>
             </div>
@@ -318,14 +358,14 @@
                 <aside class="map-sidebar">
                     <div class="sidebar-section">
                         <h3>
-                            <span class="section-icon">🛤️</span>
+                            <span class="section-icon">&#128506;</span>
                             Route Configuration
                         </h3>
                         
                         <div class="form-group">
                             <label>STARTING CITY</label>
                             <div class="select-wrapper">
-                                <span class="select-icon">○</span>
+                                <span class="select-icon">&#9675;</span>
                                 <select id="startPoint" class="input-field">
                                     <option value="">Select Starting City</option>
                                 </select>
@@ -333,13 +373,13 @@
                         </div>
                         
                         <div class="swap-icon-container">
-                            <button class="btn-swap" id="swapBtn">⇅</button>
+                            <button class="btn-swap" id="swapBtn">&#8646;</button>
                         </div>
                         
                         <div class="form-group">
                             <label>DESTINATION CITY</label>
                             <div class="select-wrapper">
-                                <span class="select-icon">📍</span>
+                                <span class="select-icon">&#128205;</span>
                                 <select id="endPoint" class="input-field">
                                     <option value="">Select Destination</option>
                                 </select>
@@ -350,18 +390,18 @@
                             <label>OPTIMIZATION CRITERIA</label>
                             <div class="criteria-buttons">
                                 <button class="criteria-btn active" data-criteria="distance">
-                                    <span class="criteria-icon">📍</span>
+                                    <span class="criteria-icon">&#128205;</span>
                                     Shortest Distance
                                 </button>
                                 <button class="criteria-btn" data-criteria="cost">
-                                    <span class="criteria-icon">💰</span>
+                                    <span class="criteria-icon">&#128176;</span>
                                     Lowest Cost
                                 </button>
                             </div>
                         </div>
                         
                         <button id="findBtn" class="btn-primary btn-full btn-find">
-                            <span class="btn-icon">🧭</span>
+                            <span class="btn-icon">&#128269;</span>
                             Find Shortest Path
                         </button>
                     </div>
@@ -369,7 +409,7 @@
                     <!-- Results Panel -->
                     <div id="resultsPanel" class="results-panel hidden">
                         <div class="result-header">
-                            <span class="result-check">✓</span>
+                            <span class="result-check">&#10003;</span>
                             <span>Optimal Path Found</span>
                             <span class="algo-badge">Dijkstra</span>
                         </div>
@@ -406,8 +446,8 @@
                     
                     <div class="map-controls">
                         <button class="map-ctrl-btn" id="zoomInBtn">+</button>
-                        <button class="map-ctrl-btn" id="zoomOutBtn">−</button>
-                        <button class="map-ctrl-btn" id="resetViewBtn">⟲</button>
+                        <button class="map-ctrl-btn" id="zoomOutBtn">&minus;</button>
+                        <button class="map-ctrl-btn" id="resetViewBtn">&#10227;</button>
                     </div>
                     
                     <div class="map-footer">
@@ -421,3 +461,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
+

@@ -53,6 +53,23 @@ public class MyBST {
         root = deleteRec(root,key);
     }
 
+    public boolean update(String id, String name, String phone, String email) {
+        TreeNode node = findNode(root, id);
+        if (node == null) {
+            return false;
+        }
+        node.data = new Customer(id, name, phone, email);
+        return true;
+    }
+
+    private TreeNode findNode(TreeNode node, String id) {
+        if (node == null) return null;
+        int cmp = id.compareTo(node.data.getId());
+        if (cmp == 0) return node;
+        if (cmp < 0) return findNode(node.left, id);
+        return findNode(node.right, id);
+    }
+
   private TreeNode deleteRec(TreeNode root, Customer key) {
         // 1. Nếu cây rỗng hoặc đi quá lá -> Dừng
         if (root == null) return root;

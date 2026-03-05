@@ -46,7 +46,8 @@ public class MyLinkedList {
 
     // Thêm vào vị trí index (0 = đầu)
     public boolean addAtIndex(int index, TourLocation location) {
-        if (index < 0 || index > size) return false;
+        if (index < 0 || index > size)
+            return false;
         if (index == 0) {
             addAtHead(location);
             return true;
@@ -68,13 +69,14 @@ public class MyLinkedList {
 
     // 2. Xóa theo ID (Xử lý kỹ các trường hợp đặc biệt)
     public boolean removeLocation(String locationId) {
-        if (head == null) return false;
+        if (head == null)
+            return false;
 
         // TH1: Xóa ngay thằng đầu tiên (Head)
         if (head.data.getId().equals(locationId)) {
             head = head.next;
             size--;
-            
+
             // Nếu xóa xong mà list rỗng luôn -> Phải reset cả tail về null
             if (head == null) {
                 tail = null;
@@ -90,7 +92,7 @@ public class MyLinkedList {
                 if (current.next == tail) {
                     tail = current; // Thằng đứng trước nó lên làm đuôi
                 }
-                
+
                 // Cắt dây nối (Bỏ qua thằng cần xóa)
                 current.next = current.next.next;
                 size--;
@@ -103,8 +105,9 @@ public class MyLinkedList {
 
     // 3. Lấy phần tử theo index (Dùng cho Unit Test)
     public TourLocation get(int index) {
-        if (index < 0 || index >= size) return null;
-        
+        if (index < 0 || index >= size)
+            return null;
+
         Node<TourLocation> current = head;
         for (int i = 0; i < index; i++) {
             current = current.next;
@@ -126,7 +129,8 @@ public class MyLinkedList {
         }
         System.out.println("END");
     }
-// 5. Chuyển thành mảng (Dùng để gửi JSON ra Web sau này)
+
+    // 5. Chuyển thành mảng (Dùng để gửi JSON ra Web sau này)
     public Object[] toArray() {
         Object[] arr = new Object[size];
         Node<TourLocation> current = head;
@@ -138,6 +142,26 @@ public class MyLinkedList {
         return arr;
     }
 
+    // 6. Cập nhật thông tin node (Price, ImageUrl)
+    public boolean updateLocation(String locationId, double price, String imageUrl) {
+        Node<TourLocation> current = head;
+        while (current != null) {
+            if (current.data.getId().equals(locationId)) {
+                if (price >= 0) {
+                    current.data.setPrice(price);
+                }
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    current.data.setImageUrl(imageUrl);
+                }
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
     // Helper: Lấy kích thước
-    public int size() { return size; }
-}  
+    public int size() {
+        return size;
+    }
+}

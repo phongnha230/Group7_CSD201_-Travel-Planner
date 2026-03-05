@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // Travel Planner Pro - JavaScript
 // ========================================
 
@@ -124,7 +124,7 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-// Transform coordinates to spread nodes across canvas (dãn bản đồ)
+// Transform coordinates to spread nodes across canvas
 function getSpreadCoords(loc) {
     if (locations.length < 2) return { x: loc.x, y: loc.y };
     const xs = locations.map(l => l.x);
@@ -356,7 +356,7 @@ function findPath() {
                 <div class="path-dot start"></div>
                 <div class="path-info">
                     <div class="path-name">${startName}</div>
-                    <div class="path-detail">Điểm xuất phát trùng với điểm đến (0 km)</div>
+                    <div class="path-detail">Start point is same as destination (0 km)</div>
                 </div>
             </div>
         `;
@@ -422,7 +422,7 @@ function findPath() {
                 `;
             }).join('');
             
-            addLog('success', `Found path: ${path.map(p => p.name).join(' → ')}`);
+            addLog('success', `Found path: ${path.map(p => p.name).join(' -> ')}`);
         });
 }
 
@@ -473,6 +473,7 @@ function initTourTab() {
     });
     
     document.getElementById('addToTourBtn').addEventListener('click', addToTour);
+    document.getElementById('updateTourBtn').addEventListener('click', updateTour);
     
     document.getElementById('tourImageInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -484,7 +485,7 @@ function initTourTab() {
             };
             reader.readAsDataURL(file);
         } else if (!file) {
-            preview.innerHTML = '<span class="preview-placeholder">Chọn ảnh để upload</span>';
+            preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
         }
     });
     
@@ -530,7 +531,7 @@ async function addToTour() {
             const uploadData = await uploadRes.json();
             if (uploadData.url) imageUrl = uploadData.url;
             else if (uploadData.error) {
-                alert('Upload ảnh thất bại: ' + uploadData.error);
+                alert('Upload áº£nh tháº¥t báº¡i: ' + uploadData.error);
                 return;
             }
         } catch (err) {
@@ -544,7 +545,7 @@ async function addToTour() {
                 const data = await res.json();
                 if (data.url) imageUrl = data.url;
             } catch (e) {
-                alert('Upload ảnh thất bại. Vui lòng thử lại.');
+                alert('Image upload failed. Please try again.');
                 return;
             }
         }
@@ -569,9 +570,68 @@ async function addToTour() {
                 addLog('success', 'Added location to tour');
                 if (imageInput) imageInput.value = '';
                 const preview = document.getElementById('imagePreview');
-                if (preview) preview.innerHTML = '<span class="preview-placeholder">Chọn ảnh để upload</span>';
+                if (preview) preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
             } else {
                 alert(data.error || 'Failed to add location');
+            }
+        });
+}
+
+async function updateTour() {
+    const locId = document.getElementById('tourLocationSelect').value;
+    const priceInput = document.getElementById('tourPrice');
+    const imageInput = document.getElementById('tourImageInput');
+    
+    if (!locId) {
+        alert('Please select a location to update');
+        return;
+    }
+    
+    let imageUrl = '';
+    if (imageInput && imageInput.files && imageInput.files[0]) {
+        try {
+            const formData = new FormData();
+            formData.append('file', imageInput.files[0]);
+            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            const uploadData = await uploadRes.json();
+            if (uploadData.url) imageUrl = uploadData.url;
+            else if (uploadData.error) {
+                alert('Upload áº£nh tháº¥t báº¡i: ' + uploadData.error);
+                return;
+            }
+        } catch (err) {
+            try {
+                const base64 = await fileToBase64(imageInput.files[0]);
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64, filename: imageInput.files[0].name })
+                });
+                const data = await res.json();
+                if (data.url) imageUrl = data.url;
+            } catch (e) {
+                alert('Image upload failed. Please try again.');
+                return;
+            }
+        }
+    }
+    
+    const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+    
+    let url = `/api/tour?id=${encodeURIComponent(locId)}&price=${encodeURIComponent(price)}`;
+    if (imageUrl) url += `&imageUrl=${encodeURIComponent(imageUrl)}`;
+    
+    fetch(url, { method: 'PUT' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                loadTourList();
+                addLog('success', 'Updated location information in tour');
+                if (imageInput) imageInput.value = '';
+                const preview = document.getElementById('imagePreview');
+                if (preview) preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
+            } else {
+                alert(data.error || 'Failed to update location');
             }
         });
 }
@@ -605,7 +665,7 @@ function loadTourList() {
             if (tour.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">📍</div>
+                        <div class="empty-icon">&#128205;</div>
                         <p class="empty-title">No destinations in tour yet.</p>
                         <p class="empty-hint">Add locations from the sidebar to build your itinerary!</p>
                     </div>
@@ -622,7 +682,7 @@ function loadTourList() {
                 const isTail = index === tour.length - 1;
                 const nextLoc = index < tour.length - 1 ? tour[index + 1].name : null;
                 
-                const priceStr = loc.price > 0 ? new Intl.NumberFormat('vi-VN').format(loc.price) + ' VNĐ' : 'Chưa nhập';
+                const priceStr = loc.price > 0 ? new Intl.NumberFormat('vi-VN').format(loc.price) + ' VNÄ' : 'ChÆ°a nháº­p';
                 const priceLevel = loc.price > 1000000 ? '$$$$' : 
                                   loc.price > 500000 ? '$$$' : 
                                   loc.price > 200000 ? '$$' : '$';
@@ -631,7 +691,7 @@ function loadTourList() {
                 const dataImage = loc.imageUrl ? ` data-image="${String(loc.imageUrl).replace(/"/g, '&quot;').replace(/</g, '&lt;')}"` : '';
                 const cardClass = loc.imageUrl ? ' tour-card-clickable' : '';
                 html += `
-                    <div class="tour-arrow">→</div>
+                    <div class="tour-arrow">&rarr;</div>
                     <div class="tour-card ${isHead ? 'head-node' : ''} ${isTail ? 'tail-node' : ''}${cardClass}"${dataImage}>
                         <div class="tour-card-map" style="${imgStyle}">
                             ${isHead ? '<div class="head-badge">HEAD</div>' : ''}
@@ -640,13 +700,13 @@ function loadTourList() {
                         <div class="tour-card-content">
                             <h4 class="tour-card-title">${loc.name}</h4>
                             <div class="tour-card-meta">
-                                <span>📅 ${duration} Days</span>
-                                <span>💰 ${priceStr}</span>
+                                <span>&#128197; ${duration} Days</span>
+                                <span>&#128176; ${priceStr}</span>
                             </div>
                             <div class="tour-card-index">Index: ${index}</div>
                             ${nextLoc ? `<div class="tour-card-next"><span>Next:</span><span>${nextLoc}</span></div>` : ''}
                             <div class="tour-card-actions">
-                                <button class="btn-remove" onclick="removeTourLocation('${loc.id}')">🗑️ Remove</button>
+                                <button class="btn-remove" onclick="removeTourLocation('${loc.id}')">&#128465; Remove</button>
                             </div>
                         </div>
                     </div>
@@ -698,26 +758,145 @@ function exportTourJSON() {
 // ========================================
 function initCustomersTab() {
     loadCustomers();
-    
-    // Modal controls
+
+    // Add modal controls
     const modal = document.getElementById('addCustomerModal');
     const addBtn = document.getElementById('addCustomerBtn');
     const closeBtn = document.getElementById('closeModalBtn');
     const cancelBtn = document.getElementById('cancelModalBtn');
     const confirmBtn = document.getElementById('confirmAddBtn');
-    
-    addBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    
+
+    addBtn.addEventListener('click', openAddCustomerModal);
+    closeBtn.addEventListener('click', closeAddCustomerModal);
+    cancelBtn.addEventListener('click', closeAddCustomerModal);
     confirmBtn.addEventListener('click', addCustomer);
-    
-    // Search
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeAddCustomerModal();
+        }
+    });
+
+    const custIdInput = document.getElementById('custId');
+    custIdInput.addEventListener('blur', () => {
+        const normalized = normalizeCustomerId(custIdInput.value);
+        if (normalized) custIdInput.value = normalized;
+    });
+    custIdInput.addEventListener('input', () => clearModalFeedback('addCustomerFeedback'));
+
+    // Detail modal controls
+    const detailModal = document.getElementById('customerDetailModal');
+    const closeDetailBtn = document.getElementById('closeDetailModalBtn');
+    const cancelDetailBtn = document.getElementById('cancelDetailModalBtn');
+    const confirmUpdateBtn = document.getElementById('confirmUpdateBtn');
+
+    closeDetailBtn.addEventListener('click', closeCustomerDetailModal);
+    cancelDetailBtn.addEventListener('click', closeCustomerDetailModal);
+    confirmUpdateBtn.addEventListener('click', updateCustomer);
+
+    detailModal.addEventListener('click', (e) => {
+        if (e.target === detailModal) {
+            closeCustomerDetailModal();
+        }
+    });
+
     document.getElementById('searchCustomerId').addEventListener('keyup', (e) => {
         if (e.key === 'Enter') {
             searchCustomer();
         }
     });
+}
+
+function normalizeCustomerId(rawId) {
+    const value = (rawId || '').trim().toUpperCase();
+    if (!value) return '';
+
+    if (value.startsWith('CUS')) {
+        const suffix = value.slice(3);
+        if (/^\d+$/.test(suffix)) {
+            return `CUS${suffix.padStart(3, '0')}`;
+        }
+        return value;
+    }
+
+    if (/^\d+$/.test(value)) {
+        return `CUS${value.padStart(3, '0')}`;
+    }
+
+    return `CUS${value}`;
+}
+
+function customerExistsById(id) {
+    return customers.some(cust => (cust.id || '').toUpperCase() === id.toUpperCase());
+}
+
+function setModalFeedback(elementId, message, type = 'error') {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = message;
+    el.classList.remove('is-hidden', 'feedback-error', 'feedback-success');
+    el.classList.add(type === 'success' ? 'feedback-success' : 'feedback-error');
+}
+
+function clearModalFeedback(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = '';
+    el.classList.remove('feedback-error', 'feedback-success');
+    el.classList.add('is-hidden');
+}
+
+function openAddCustomerModal() {
+    clearModalFeedback('addCustomerFeedback');
+    document.getElementById('custId').value = '';
+    document.getElementById('custName').value = '';
+    document.getElementById('custPhone').value = '';
+    document.getElementById('custEmail').value = '';
+    document.getElementById('addCustomerModal').classList.remove('hidden');
+}
+
+function closeAddCustomerModal() {
+    document.getElementById('addCustomerModal').classList.add('hidden');
+}
+
+function openCustomerDetailModal(customer) {
+    if (!customer) return;
+    clearModalFeedback('editCustomerFeedback');
+    document.getElementById('editCustId').value = customer.id || '';
+    document.getElementById('editCustName').value = customer.name || '';
+    document.getElementById('editCustPhone').value = customer.phone || '';
+    document.getElementById('editCustEmail').value = customer.email || '';
+    document.getElementById('customerDetailModal').classList.remove('hidden');
+}
+
+function closeCustomerDetailModal() {
+    document.getElementById('customerDetailModal').classList.add('hidden');
+}
+
+function ensureToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function showToast(message, type = 'info') {
+    const container = ensureToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 180);
+    }, 2600);
 }
 
 function loadCustomers() {
@@ -728,12 +907,13 @@ function loadCustomers() {
             document.getElementById('treeHeight').textContent = Math.ceil(Math.log2((data.count || 0) + 1)) || 0;
             document.getElementById('treeDepth').textContent = Math.ceil(Math.log2((data.count || 0) + 1)) || 0;
             
-            const customers = data.customers || [];
+            customers = data.customers || [];
             renderCustomerTable(customers);
             drawBST(data.tree || []);
         })
         .catch(err => {
             console.error('Failed to load customers:', err);
+            customers = [];
             renderCustomerTable([]);
             drawBST([]);
         });
@@ -764,8 +944,8 @@ function renderCustomerTable(customers) {
                 </span>
             </td>
             <td>
-                <button class="btn-action" onclick="searchCustomerById('${cust.id}')" title="Tìm kiếm">✏️</button>
-                <button class="btn-action btn-delete" onclick="deleteCustomer('${cust.id}')" title="Xóa">🗑️</button>
+                <button class="btn-action" onclick="searchCustomerById('${cust.id}')" title="View / Edit">✏️</button>
+                <button class="btn-action btn-delete" onclick="deleteCustomer('${cust.id}')" title="Delete">&#128465;</button>
             </td>
         </tr>
     `}).join('');
@@ -775,10 +955,18 @@ function drawBST(treeData) {
     const canvas = document.getElementById('bstCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const minCanvasHeight = 300;
+    const topOffset = 40;
+    const yStep = 80;
+    const nodeHeight = 50;
+    const bottomPadding = 30;
     
     if (!treeData || treeData.length === 0) {
+        if (canvas.height !== minCanvasHeight) {
+            canvas.height = minCanvasHeight;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#9ca3af';
         ctx.font = '14px Inter';
         ctx.textAlign = 'center';
@@ -794,14 +982,29 @@ function drawBST(treeData) {
     });
     const rootNode = treeData.find(n => !childIds.has(n.id));
     if (!rootNode) return;
-    
-    // Build layout with positions
+
     const nodeMap = {};
     treeData.forEach(n => { nodeMap[n.id] = { ...n, x: 0, y: 0, children: [n.left, n.right].filter(Boolean) }; });
+
+    function getMaxDepth(nodeId, depth = 0, visited = new Set()) {
+        if (!nodeId || visited.has(nodeId) || !nodeMap[nodeId]) return depth;
+        visited.add(nodeId);
+        const node = nodeMap[nodeId];
+        const leftDepth = node.left ? getMaxDepth(node.left, depth + 1, new Set(visited)) : depth;
+        const rightDepth = node.right ? getMaxDepth(node.right, depth + 1, new Set(visited)) : depth;
+        return Math.max(depth, leftDepth, rightDepth);
+    }
+
+    const maxDepth = getMaxDepth(rootNode.id);
+    const requiredHeight = Math.max(minCanvasHeight, topOffset + (maxDepth * yStep) + (nodeHeight / 2) + bottomPadding);
+    if (canvas.height !== requiredHeight) {
+        canvas.height = requiredHeight;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Build layout with positions
     const canvasW = canvas.width;
-    const canvasH = canvas.height;
-    const yStep = 80;
     
     function layout(nodeId, left, right, depth) {
         if (!nodeId) return;
@@ -809,7 +1012,7 @@ function drawBST(treeData) {
         if (!node) return;
         const mid = (left + right) / 2;
         node.x = mid;
-        node.y = 40 + depth * yStep;
+        node.y = topOffset + depth * yStep;
         const half = (right - left) / 4;
         layout(node.left, left, mid, depth + 1);
         layout(node.right, mid, right, depth + 1);
@@ -868,93 +1071,145 @@ function drawBST(treeData) {
 }
 
 function addCustomer() {
-    let id = document.getElementById('custId').value.trim();
+    let id = normalizeCustomerId(document.getElementById('custId').value);
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const email = document.getElementById('custEmail').value.trim();
+    const confirmBtn = document.getElementById('confirmAddBtn');
     
     if (!id || !name || !phone || !email) {
-        alert('Vui lòng điền đầy đủ các trường');
+        setModalFeedback('addCustomerFeedback', 'Please fill all required fields.');
         return;
     }
-    
-    // Normalize ID: "004" or "4" -> "CUS004"
-    if (!id.toUpperCase().startsWith('CUS')) {
-        id = 'CUS' + id.padStart(3, '0');
+
+    if (customerExistsById(id)) {
+        setModalFeedback('addCustomerFeedback', `Customer ID ${id} already exists. Please use another ID.`);
+        return;
     }
-    
-    fetch(`/api/customers?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}`, 
+
+    document.getElementById('custId').value = id;
+    clearModalFeedback('addCustomerFeedback');
+    confirmBtn.disabled = true;
+
+    fetch(`/api/customers?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}`,
           { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Clear form
-                document.getElementById('custId').value = '';
-                document.getElementById('custName').value = '';
-                document.getElementById('custPhone').value = '';
-                document.getElementById('custEmail').value = '';
-                
-                // Close modal
-                document.getElementById('addCustomerModal').classList.add('hidden');
-                
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        })
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
+                closeAddCustomerModal();
                 loadCustomers();
                 addLog('success', `Added customer: ${name}`);
+                showToast(`Added customer ${id}`, 'success');
             } else {
                 addLog('error', data.error || 'Failed to add customer');
-                alert(data.error || 'Không thể thêm khách hàng');
+                setModalFeedback('addCustomerFeedback', data.error || 'Failed to add customer.');
             }
         })
-        .catch(err => {
-            addLog('error', 'Lỗi kết nối khi thêm khách hàng');
-            alert('Lỗi kết nối. Vui lòng thử lại.');
+        .catch(() => {
+            addLog('error', 'Failed to add customer due to connection issue');
+            setModalFeedback('addCustomerFeedback', 'Connection error. Please try again.');
+        })
+        .finally(() => {
+            confirmBtn.disabled = false;
         });
 }
 
 function searchCustomer() {
-    let id = document.getElementById('searchCustomerId').value.trim();
-    if (!id) return;
-    
-    // Chuẩn hóa ID: "001" hoặc "1" → "CUS001"
-    if (!id.toUpperCase().startsWith('CUS')) {
-        id = 'CUS' + id.padStart(3, '0');
+    const input = document.getElementById('searchCustomerId');
+    const id = normalizeCustomerId(input.value);
+
+    if (!id) {
+        showToast('Enter a customer ID to search.', 'warning');
+        return;
     }
-    
+
+    input.value = id;
     searchCustomerById(id);
 }
 
 function searchCustomerById(id) {
     fetch(`/api/customers?id=${encodeURIComponent(id)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                addLog('error', `Không tìm thấy: ${id}`);
-                alert('Không tìm thấy khách hàng');
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        })
+        .then(({ ok, data }) => {
+            if (!ok || data.error) {
+                addLog('error', `Customer not found: ${id}`);
+                showToast(`Customer ${id} was not found.`, 'error');
             } else {
-                addLog('info', `Tìm thấy: ${data.name}`);
-                alert(`Tìm thấy!\n\nID: ${data.id}\nTên: ${data.name}\nĐiện thoại: ${data.phone}\nEmail: ${data.email}`);
+                addLog('info', `Found customer: ${data.name}`);
+                openCustomerDetailModal(data);
             }
         })
         .catch(() => {
-            addLog('error', 'Lỗi kết nối khi tìm kiếm');
-            alert('Lỗi kết nối. Vui lòng thử lại.');
+            addLog('error', 'Failed to search customer');
+            showToast('Connection error while searching customer.', 'error');
+        });
+}
+
+function updateCustomer() {
+    const id = (document.getElementById('editCustId').value || '').trim();
+    const name = document.getElementById('editCustName').value.trim();
+    const phone = document.getElementById('editCustPhone').value.trim();
+    const email = document.getElementById('editCustEmail').value.trim();
+    const updateBtn = document.getElementById('confirmUpdateBtn');
+
+    if (!id || !name || !phone || !email) {
+        setModalFeedback('editCustomerFeedback', 'Please fill all required fields.');
+        return;
+    }
+
+    clearModalFeedback('editCustomerFeedback');
+    updateBtn.disabled = true;
+
+    fetch(`/api/customers?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}`,
+          { method: 'PUT' })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        })
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
+                setModalFeedback('editCustomerFeedback', 'Customer updated successfully.', 'success');
+                addLog('success', `Updated customer: ${id}`);
+                showToast(`Updated customer ${id}`, 'success');
+                loadCustomers();
+                setTimeout(closeCustomerDetailModal, 500);
+            } else {
+                setModalFeedback('editCustomerFeedback', data.error || 'Failed to update customer.');
+            }
+        })
+        .catch(() => {
+            setModalFeedback('editCustomerFeedback', 'Connection error. Please try again.');
+        })
+        .finally(() => {
+            updateBtn.disabled = false;
         });
 }
 
 function deleteCustomer(id) {
-    if (!confirm('Bạn có chắc muốn xóa khách hàng ' + id + '?')) return;
+    if (!confirm('Are you sure you want to delete customer ' + id + '?')) return;
     fetch(`/api/customers?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        })
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
                 loadCustomers();
                 addLog('success', `Deleted customer: ${id}`);
+                showToast(`Deleted customer ${id}`, 'success');
             } else {
-                alert(data.error || 'Không thể xóa khách hàng');
+                showToast(data.error || 'Failed to delete customer.', 'error');
             }
         })
-        .catch(err => {
+        .catch(() => {
             addLog('error', 'Failed to delete customer');
-            alert('Không thể xóa khách hàng');
+            showToast('Failed to delete customer.', 'error');
         });
 }
 
@@ -979,17 +1234,17 @@ function renderLogs() {
     if (!container) return;
     
     container.innerHTML = activityLogs.slice(0, 5).map(log => {
-        let icon = '📋';
+        let icon = '&#128203;';
         let iconClass = 'search';
         
         if (log.type === 'success') {
-            icon = '✅';
+            icon = '&#9989;';
             iconClass = 'add';
         } else if (log.type === 'error') {
-            icon = '❌';
+            icon = '&#10060;';
             iconClass = 'remove';
         } else if (log.type === 'warning') {
-            icon = '⚠️';
+            icon = '&#9888;';
             iconClass = 'remove';
         }
         

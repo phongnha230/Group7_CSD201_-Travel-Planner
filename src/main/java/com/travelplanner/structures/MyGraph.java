@@ -9,6 +9,7 @@ import java.util.Stack;
 public class MyGraph {
     private static final int MAX_VERTS = 20;
     private static final int INFINITY = 1000000000;
+    private static final String CRITERIA_COST = "cost";
 
     private final TourLocation[] vertexList;
     private final java.util.List<java.util.List<Neighbor>> adjList;
@@ -206,6 +207,10 @@ public class MyGraph {
     }
 
     public java.util.List<TourLocation> getPath(String startId, String endId) {
+        return getPath(startId, endId, "distance");
+    }
+
+    public java.util.List<TourLocation> getPath(String startId, String endId, String criteria) {
         int startNode = findIndexById(startId);
         int endNode = findIndexById(endId);
 
@@ -242,7 +247,8 @@ public class MyGraph {
             for (Neighbor neighbor : adjList.get(u)) {
                 int v = neighbor.to;
                 if (!visited[v]) {
-                    int newDist = distance[u] + neighbor.weight;
+                    int edgeMetric = getEdgeMetric(u, neighbor, criteria);
+                    int newDist = distance[u] + edgeMetric;
                     if (newDist < distance[v]) {
                         distance[v] = newDist;
                         parent[v] = u;
@@ -263,6 +269,23 @@ public class MyGraph {
         }
         java.util.Collections.reverse(path);
         return path;
+    }
+
+    private int getEdgeMetric(int fromIndex, Neighbor neighbor, String criteria) {
+        if (CRITERIA_COST.equalsIgnoreCase(criteria)) {
+            return estimateTravelCost(fromIndex, neighbor.to, neighbor.weight);
+        }
+        return neighbor.weight;
+    }
+
+    private int estimateTravelCost(int fromIndex, int toIndex, int distanceWeight) {
+        double fromPrice = Math.max(0, vertexList[fromIndex].getPrice());
+        double toPrice = Math.max(0, vertexList[toIndex].getPrice());
+
+        // Estimated travel cost uses distance adjusted by price level of connected cities.
+        double multiplier = 1.0 + ((fromPrice + toPrice) / 200.0);
+        int cost = (int) Math.round(distanceWeight * multiplier);
+        return Math.max(1, cost);
     }
 
     public static class Edge {

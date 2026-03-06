@@ -8,6 +8,7 @@ let edges = [];
 let currentPath = [];
 let customers = [];
 let activityLogs = [];
+let selectedMapCriteria = 'distance';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -76,8 +77,11 @@ function initMapTab() {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.criteria-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            selectedMapCriteria = btn.dataset.criteria === 'cost' ? 'cost' : 'distance';
+            updateMapCriteriaUI();
         });
     });
+    updateMapCriteriaUI();
     
     // Swap button
     document.getElementById('swapBtn').addEventListener('click', () => {
@@ -337,6 +341,7 @@ function drawMap() {
 function findPath() {
     const start = document.getElementById('startPoint').value;
     const end = document.getElementById('endPoint').value;
+    const criteria = selectedMapCriteria;
     
     if (!start || !end) {
         alert('Please select both starting and destination cities');
@@ -349,21 +354,26 @@ function findPath() {
         drawMap();
         const resultsPanel = document.getElementById('resultsPanel');
         resultsPanel.classList.remove('hidden');
-        document.getElementById('totalDistance').innerHTML = `0 <small>km</small>`;
-        document.getElementById('estTime').innerHTML = `0 <small>hrs</small>`;
+        setResultLabels(criteria);
+        document.getElementById('totalDistance').innerHTML = criteria === 'cost'
+            ? `0 <small>cost</small>`
+            : `0 <small>km</small>`;
+        document.getElementById('estTime').innerHTML = criteria === 'cost'
+            ? `0 <small>km</small>`
+            : `0 <small>hrs</small>`;
         document.getElementById('pathList').innerHTML = `
             <div class="path-item">
                 <div class="path-dot start"></div>
                 <div class="path-info">
                     <div class="path-name">${startName}</div>
-                    <div class="path-detail">Start point is same as destination (0 km)</div>
+                    <div class="path-detail">Start point is same as destination</div>
                 </div>
             </div>
         `;
         return;
     }
     
-    fetch(`/api/find-path?start=${start}&end=${end}`)
+    fetch(`/api/find-path?start=${start}&end=${end}&criteria=${criteria}`)
         .then(res => res.json())
         .then(path => {
             if (path.error) {
@@ -378,18 +388,25 @@ function findPath() {
             const resultsPanel = document.getElementById('resultsPanel');
             resultsPanel.classList.remove('hidden');
             
-            // Calculate total distance (km)
+            // Calculate route totals
             let totalDistance = 0;
+            let totalCost = 0;
             for (let i = 0; i < path.length - 1; i++) {
-                const edge = edges.find(e => 
-                    (e.start === path[i].id && e.end === path[i+1].id) ||
-                    (e.start === path[i+1].id && e.end === path[i].id)
-                );
-                if (edge) totalDistance += edge.weight;
+                const edge = getEdgeBetween(path[i].id, path[i + 1].id);
+                if (edge) {
+                    totalDistance += edge.weight;
+                    totalCost += estimateEdgeCost(path[i].id, path[i + 1].id, edge.weight);
+                }
             }
-            
-            document.getElementById('totalDistance').innerHTML = `${totalDistance.toLocaleString()} <small>km</small>`;
-            document.getElementById('estTime').innerHTML = `${Math.ceil(totalDistance / 100)} <small>hrs</small>`;
+
+            setResultLabels(criteria);
+            if (criteria === 'cost') {
+                document.getElementById('totalDistance').innerHTML = `${totalCost.toLocaleString()} <small>cost</small>`;
+                document.getElementById('estTime').innerHTML = `${totalDistance.toLocaleString()} <small>km</small>`;
+            } else {
+                document.getElementById('totalDistance').innerHTML = `${totalDistance.toLocaleString()} <small>km</small>`;
+                document.getElementById('estTime').innerHTML = `${Math.ceil(totalDistance / 100)} <small>hrs</small>`;
+            }
             
             // Build path list
             const pathList = document.getElementById('pathList');
@@ -402,13 +419,18 @@ function findPath() {
                     detail = 'Destination Reached';
                 } else if (index > 0) {
                     dotClass = 'middle';
-                    // Calculate distance from previous
                     const prevLoc = path[index - 1];
-                    const edge = edges.find(e => 
-                        (e.start === prevLoc.id && e.end === loc.id) ||
-                        (e.start === loc.id && e.end === prevLoc.id)
-                    );
-                    detail = edge ? `${edge.weight} km` : '';
+                    const edge = getEdgeBetween(prevLoc.id, loc.id);
+                    if (edge) {
+                        if (criteria === 'cost') {
+                            const edgeCost = estimateEdgeCost(prevLoc.id, loc.id, edge.weight);
+                            detail = `${edgeCost} cost`;
+                        } else {
+                            detail = `${edge.weight} km`;
+                        }
+                    } else {
+                        detail = '';
+                    }
                 }
                 
                 return `
@@ -422,8 +444,50 @@ function findPath() {
                 `;
             }).join('');
             
-            addLog('success', `Found path: ${path.map(p => p.name).join(' -> ')}`);
+            addLog('success', `Found ${criteria === 'cost' ? 'lowest cost' : 'shortest'} path: ${path.map(p => p.name).join(' -> ')}`);
         });
+}
+
+function updateMapCriteriaUI() {
+    const findBtn = document.getElementById('findBtn');
+    if (!findBtn) return;
+
+    if (selectedMapCriteria === 'cost') {
+        findBtn.innerHTML = '<span class="btn-icon">&#128176;</span> Find Lowest Cost Path';
+    } else {
+        findBtn.innerHTML = '<span class="btn-icon">&#128269;</span> Find Shortest Path';
+    }
+}
+
+function setResultLabels(criteria) {
+    const labels = document.querySelectorAll('#resultsPanel .result-stat-label');
+    if (labels.length < 2) return;
+
+    if (criteria === 'cost') {
+        labels[0].textContent = 'TOTAL COST';
+        labels[1].textContent = 'TOTAL DISTANCE';
+    } else {
+        labels[0].textContent = 'TOTAL DISTANCE';
+        labels[1].textContent = 'EST. TIME';
+    }
+}
+
+function getEdgeBetween(startId, endId) {
+    return edges.find(e =>
+        (e.start === startId && e.end === endId) ||
+        (e.start === endId && e.end === startId)
+    );
+}
+
+function estimateEdgeCost(fromId, toId, distance) {
+    const fromLoc = getLocationById(fromId);
+    const toLoc = getLocationById(toId);
+    const fromPrice = fromLoc && Number.isFinite(Number(fromLoc.price)) ? Number(fromLoc.price) : 0;
+    const toPrice = toLoc && Number.isFinite(Number(toLoc.price)) ? Number(toLoc.price) : 0;
+
+    const multiplier = 1 + ((fromPrice + toPrice) / 200);
+    const estimated = Math.round(distance * multiplier);
+    return Math.max(1, estimated);
 }
 
 function getLocationById(id) {
@@ -485,7 +549,7 @@ function initTourTab() {
             };
             reader.readAsDataURL(file);
         } else if (!file) {
-            preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
+            preview.innerHTML = '<span class="preview-placeholder">Choose image to upload</span>';
         }
     });
     
@@ -531,7 +595,7 @@ async function addToTour() {
             const uploadData = await uploadRes.json();
             if (uploadData.url) imageUrl = uploadData.url;
             else if (uploadData.error) {
-                alert('Upload áº£nh tháº¥t báº¡i: ' + uploadData.error);
+                alert('Image upload failed: ' + uploadData.error);
                 return;
             }
         } catch (err) {
@@ -557,8 +621,20 @@ async function addToTour() {
     const indexInput = document.getElementById('indexInput');
     
     let url = `/api/tour?id=${encodeURIComponent(locId)}&price=${encodeURIComponent(price)}&position=${encodeURIComponent(position)}`;
-    if (position === 'index' && indexInput && indexInput.value !== '') {
-        url += `&index=${encodeURIComponent(indexInput.value)}`;
+    if (position === 'index') {
+        const rawIndex = indexInput ? indexInput.value.trim() : '';
+        if (rawIndex === '') {
+            alert('Please enter index position');
+            return;
+        }
+
+        const parsedIndex = Number(rawIndex);
+        if (!Number.isInteger(parsedIndex) || parsedIndex < 0) {
+            alert('Index must be a non-negative integer');
+            return;
+        }
+
+        url += `&index=${encodeURIComponent(parsedIndex)}`;
     }
     if (imageUrl) url += `&imageUrl=${encodeURIComponent(imageUrl)}`;
     
@@ -570,7 +646,7 @@ async function addToTour() {
                 addLog('success', 'Added location to tour');
                 if (imageInput) imageInput.value = '';
                 const preview = document.getElementById('imagePreview');
-                if (preview) preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
+                if (preview) preview.innerHTML = '<span class="preview-placeholder">Choose image to upload</span>';
             } else {
                 alert(data.error || 'Failed to add location');
             }
@@ -596,7 +672,7 @@ async function updateTour() {
             const uploadData = await uploadRes.json();
             if (uploadData.url) imageUrl = uploadData.url;
             else if (uploadData.error) {
-                alert('Upload áº£nh tháº¥t báº¡i: ' + uploadData.error);
+                alert('Image upload failed: ' + uploadData.error);
                 return;
             }
         } catch (err) {
@@ -629,7 +705,7 @@ async function updateTour() {
                 addLog('success', 'Updated location information in tour');
                 if (imageInput) imageInput.value = '';
                 const preview = document.getElementById('imagePreview');
-                if (preview) preview.innerHTML = '<span class="preview-placeholder">Chá»n áº£nh Ä‘á»ƒ upload</span>';
+                if (preview) preview.innerHTML = '<span class="preview-placeholder">Choose image to upload</span>';
             } else {
                 alert(data.error || 'Failed to update location');
             }
@@ -682,7 +758,9 @@ function loadTourList() {
                 const isTail = index === tour.length - 1;
                 const nextLoc = index < tour.length - 1 ? tour[index + 1].name : null;
                 
-                const priceStr = loc.price > 0 ? new Intl.NumberFormat('vi-VN').format(loc.price) + ' VNÄ' : 'ChÆ°a nháº­p';
+                const priceStr = loc.price > 0
+                    ? new Intl.NumberFormat('vi-VN').format(loc.price) + ' VND'
+                    : 'Not set';
                 const priceLevel = loc.price > 1000000 ? '$$$$' : 
                                   loc.price > 500000 ? '$$$' : 
                                   loc.price > 200000 ? '$$' : '$';

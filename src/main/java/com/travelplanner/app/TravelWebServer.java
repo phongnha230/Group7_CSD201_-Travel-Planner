@@ -118,8 +118,8 @@ public class TravelWebServer {
 
                 for (int i = 0; i < locations.size(); i++) {
                     TourLocation loc = locations.get(i);
-                    json.append(String.format("{\"id\":\"%s\", \"name\":\"%s\", \"x\":%d, \"y\":%d}",
-                            loc.getId(), loc.getName(), loc.getX(), loc.getY()));
+                    json.append(String.format("{\"id\":\"%s\", \"name\":\"%s\", \"price\":%.2f, \"x\":%d, \"y\":%d}",
+                            loc.getId(), loc.getName(), loc.getPrice(), loc.getX(), loc.getY()));
                     if (i < locations.size() - 1)
                         json.append(",");
                 }
@@ -166,6 +166,7 @@ public class TravelWebServer {
 
             String startId = params.get("start");
             String endId = params.get("end");
+            String criteria = params.getOrDefault("criteria", "distance");
 
             String response;
             int statusCode = 200;
@@ -174,7 +175,7 @@ public class TravelWebServer {
                 response = "{\"error\": \"Missing start or end parameter\"}";
                 statusCode = 400;
             } else {
-                List<TourLocation> path = graph.getPath(startId, endId);
+                List<TourLocation> path = graph.getPath(startId, endId, criteria);
 
                 if (path == null) {
                     response = "{\"error\": \"No path found\"}";

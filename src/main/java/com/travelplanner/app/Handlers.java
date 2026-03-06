@@ -91,21 +91,32 @@ class TourHandler implements HttpHandler {
                             if (imageUrl != null && !imageUrl.isEmpty()) {
                                 tourCopy.setImageUrl(imageUrl);
                             }
-                            boolean added = false;
                             if ("head".equalsIgnoreCase(position)) {
                                 tourList.addAtHead(tourCopy);
-                                added = true;
-                            } else if ("index".equalsIgnoreCase(position) && indexStr != null && !indexStr.isEmpty()) {
-                                try {
-                                    int idx = Integer.parseInt(indexStr);
-                                    added = tourList.addAtIndex(idx, tourCopy);
-                                } catch (NumberFormatException ignored) {
+                                response = "{\"success\": true, \"message\": \"Added to tour\"}";
+                            } else if ("index".equalsIgnoreCase(position)) {
+                                if (indexStr == null || indexStr.isEmpty()) {
+                                    response = "{\"error\": \"Missing index parameter\"}";
+                                    statusCode = 400;
+                                } else {
+                                    try {
+                                        int idx = Integer.parseInt(indexStr);
+                                        boolean added = tourList.addAtIndex(idx, tourCopy);
+                                        if (added) {
+                                            response = "{\"success\": true, \"message\": \"Added to tour\"}";
+                                        } else {
+                                            response = "{\"error\": \"Index out of range\"}";
+                                            statusCode = 400;
+                                        }
+                                    } catch (NumberFormatException ignored) {
+                                        response = "{\"error\": \"Invalid index\"}";
+                                        statusCode = 400;
+                                    }
                                 }
-                            }
-                            if (!added) {
+                            } else {
                                 tourList.addAtTail(tourCopy);
+                                response = "{\"success\": true, \"message\": \"Added to tour\"}";
                             }
-                            response = "{\"success\": true, \"message\": \"Added to tour\"}";
                         } else {
                             response = "{\"error\": \"Location not found\"}";
                             statusCode = 404;
